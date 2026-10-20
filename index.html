@@ -1,0 +1,1641 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ChargeIt</title>
+<meta name="description" content="Book a home EV charger near you in Ahmedabad in two taps, or list your own charger and earn from its idle hours.">
+<meta property="og:title" content="ChargeIt">
+<meta property="og:description" content="Book a home EV charger near you in Ahmedabad in two taps, or list your own charger and earn from its idle hours.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#080E0B">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M12 7.5V5.6A2.6 2.6 0 0 1 14.6 3h2.8A2.6 2.6 0 0 1 20 5.6v1.9' fill='none' stroke='%23F1F6F2' stroke-width='2.2' stroke-linecap='round'/%3E%3Crect x='5' y='7' width='22' height='22' rx='6' fill='%23C6F43F'/%3E%3Cpath d='M17.8 10.2 11.6 18.4h4.3l-1.4 6.6 6.3-8.4h-4.3z' fill='%230A1206'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: phone app. Top bar (location + vehicle), one screen at a time, five tabs at the bottom.
+   Look: dark and electric. Near-black green ground, dark green cards, electric lime for the one action that matters. */
+:root{
+  color-scheme:dark;
+  --bg:#080E0B;
+  --bg-2:#0C1410;
+  --card:#121C16;
+  --card-2:#18241D;
+  --card-3:#203027;
+  --line:#1F2C25;
+  --line-2:#2D3E35;
+  --text:#F1F6F2;
+  --text-2:#ABBAB1;
+  --text-3:#6F8076;
+  --lime:#C6F43F;
+  --lime-ink:#0A1206;
+  --lime-soft:rgba(198,244,63,.12);
+  --lime-line:rgba(198,244,63,.4);
+  --mint:#4BE3A0;
+  --amber:#FFB547;
+  --amber-soft:rgba(255,181,71,.13);
+  --red:#FF5D4F;
+  --red-ink:#1A0402;
+  --red-soft:rgba(255,93,79,.14);
+  --blue:#6CB8FF;
+  --blue-soft:rgba(108,184,255,.13);
+  --violet:#B9A2FF;
+  --violet-soft:rgba(185,162,255,.13);
+  --map:#0B130F;
+  --road:#17231C;
+  --road-major:#243429;
+  --water:#0D2530;
+  --park:#0F2018;
+  --scrim:rgba(0,0,0,.62);
+  --font:"Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{height:100%; background:var(--bg)}
+body{height:100%; margin:0; background:var(--bg); color:var(--text); font:500 15px/1.45 var(--font); -webkit-font-smoothing:antialiased; -webkit-tap-highlight-color:transparent}
+button,input,select,textarea,output{font:inherit; color:inherit}
+button{cursor:pointer}
+a{color:inherit; text-decoration:none}
+:focus-visible{outline:2px solid var(--lime); outline-offset:2px}
+h1,h2,h3{margin:0; font-weight:800; letter-spacing:-.025em; text-wrap:balance}
+
+/* ---------- Shell ---------- */
+.app{height:100%; max-width:480px; margin:0 auto; display:flex; flex-direction:column; position:relative; overflow:hidden; overflow:clip; background:var(--bg)}
+@media (min-width:520px){ .app{border-left:1px solid var(--line); border-right:1px solid var(--line)} }
+.pad{padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px))}
+.top{flex:0 0 auto; display:flex; align-items:center; gap:10px; padding-block:10px; background:var(--bg); border-bottom:1px solid var(--line)}
+.logo{width:34px; height:34px; flex:0 0 auto; display:block}
+.lg-handle{fill:none; stroke:var(--text); stroke-width:2.2; stroke-linecap:round}
+.lg-body{fill:var(--lime)}
+.lg-charge{fill:#8FB82A}
+.lg-bolt{fill:var(--lime-ink)}
+.place{flex:1; min-width:0; text-align:left; background:none; border:0; padding:0}
+.place small{display:block; font-size:11.5px; color:var(--text-3); font-weight:600}
+.place b{display:flex; align-items:center; gap:4px; font-size:15.5px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.place b svg{width:14px; height:14px; flex:0 0 auto}
+.vchip{flex:0 0 auto; display:inline-flex; align-items:center; gap:8px; max-width:52%; border:1px solid var(--line-2); background:var(--card); border-radius:14px; padding:7px 10px; text-align:left}
+.vchip .vc-t{display:flex; flex-direction:column; min-width:0; line-height:1.15}
+.vchip .vc-t b{font-size:13px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.vchip .vc-t small{font-size:11.5px; color:var(--text-2); font-weight:600}
+.vchip svg.dd{width:13px; height:13px; color:var(--text-3); flex:0 0 auto}
+.views{flex:1 1 auto; min-height:0; position:relative}
+.view{position:absolute; inset:0; display:flex; flex-direction:column; min-height:0}
+.scroll{flex:1 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch}
+.stack{display:flex; flex-direction:column; gap:22px; padding-block:16px 28px}
+
+/* ---------- Battery ---------- */
+.bat{position:relative; display:inline-block; flex:0 0 auto; width:24px; height:12px; border:1.6px solid var(--text-2); border-radius:3.5px; padding:1.5px; margin-right:3px}
+.bat::after{content:""; position:absolute; right:-4.5px; top:2.5px; width:2.5px; height:4px; background:var(--text-2); border-radius:0 1px 1px 0}
+.bat-fill{display:block; height:100%; border-radius:1.5px; background:var(--lime)}
+.bat.mid .bat-fill{background:var(--amber)}
+.bat.low .bat-fill{background:var(--red)}
+.bbar{position:relative; height:34px; border:2px solid var(--line-2); border-radius:10px; padding:3px; margin-right:7px; background:var(--bg-2)}
+.bbar::after{content:""; position:absolute; right:-7px; top:50%; width:5px; height:12px; transform:translateY(-50%); background:var(--line-2); border-radius:0 3px 3px 0}
+.bb-now,.bb-add{position:absolute; top:3px; bottom:3px; border-radius:6px; transition:width .25s, left .25s}
+.bb-now{left:3px; background:var(--card-3)}
+.bb-add{background:var(--lime); background-image:repeating-linear-gradient(-45deg, transparent 0 7px, rgba(10,18,6,.14) 7px 14px); display:flex; align-items:center; justify-content:flex-end; padding-right:8px; overflow:hidden; font-size:12px; font-weight:800; color:var(--lime-ink); font-style:normal}
+.bb-lbl{position:absolute; inset:0; display:flex; align-items:center; padding:0 12px; font-size:12px; font-weight:800; pointer-events:none; color:var(--text)}
+
+/* ---------- Common bits ---------- */
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:52px; padding:0 22px; border-radius:16px; border:0; background:var(--lime); color:var(--lime-ink); font-weight:800; font-size:15.5px; transition:transform .1s}
+.btn:active{transform:scale(.98)}
+.btn svg{width:18px; height:18px; flex:0 0 auto}
+.btn.ghost{background:var(--card-2); color:var(--text); border:1px solid var(--line-2)}
+.btn.red{background:var(--red); color:var(--red-ink)}
+.btn.block{width:100%}
+.btn.small{min-height:40px; padding:0 16px; font-size:13.5px; border-radius:12px}
+.btn:disabled{background:var(--card-2); color:var(--text-3); cursor:not-allowed}
+.pbtn{flex:0 0 auto; border:1px solid var(--lime-line); background:var(--lime-soft); color:var(--lime); border-radius:12px; padding:8px 14px; font-weight:800; font-size:13px}
+.link{background:none; border:0; padding:0; color:var(--lime); font-weight:700; font-size:13.5px}
+.link.muted{color:var(--text-2)}
+.link.danger{color:var(--red)}
+.iconbtn{width:40px; height:40px; flex:0 0 auto; border-radius:12px; border:1px solid var(--line-2); background:var(--card); display:grid; place-items:center; color:var(--text)}
+.iconbtn svg{width:18px; height:18px}
+.chips{display:flex; gap:8px; overflow-x:auto; scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto; border:1px solid var(--line-2); background:var(--card); border-radius:12px; padding:8px 13px; font-size:13px; font-weight:700; color:var(--text-2); white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--lime); color:var(--lime-ink); border-color:var(--lime)}
+.chip:disabled{opacity:.35; cursor:not-allowed}
+.tag{display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:800; border-radius:8px; padding:3px 8px; background:var(--card-3); color:var(--text-2); white-space:nowrap}
+.tag svg{width:12px; height:12px}
+.tag.lime{background:var(--lime-soft); color:var(--lime)}
+.tag.mint{background:rgba(75,227,160,.12); color:var(--mint)}
+.tag.amber{background:var(--amber-soft); color:var(--amber)}
+.tag.red{background:var(--red-soft); color:var(--red)}
+.dot{width:7px; height:7px; border-radius:50%; background:currentColor; flex:0 0 auto}
+.sec-h{display:flex; align-items:baseline; justify-content:space-between; gap:12px}
+.sec-h h2{font-size:18px}
+.muted{color:var(--text-2)}
+.fine{font-size:12.5px; color:var(--text-3); margin:0; font-weight:500}
+.card{background:var(--card); border:1px solid var(--line); border-radius:20px; padding:16px}
+.row{display:flex; justify-content:space-between; align-items:center; gap:12px; padding-block:5px; font-size:14px}
+.row > span:first-child{color:var(--text-2)}
+.row > span:last-child{font-weight:700; text-align:right; font-variant-numeric:tabular-nums}
+.row.total{border-top:1px solid var(--line-2); margin-top:6px; padding-top:11px; font-size:16px}
+.row.total > span{color:var(--text); font-weight:800}
+.av{width:46px; height:46px; flex:0 0 auto; border-radius:14px; background:var(--card-3); color:var(--text); display:grid; place-items:center; font-weight:800; font-size:15px}
+.seg{display:grid; grid-auto-flow:column; grid-auto-columns:1fr; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:4px; gap:4px}
+.seg button{border:0; background:transparent; border-radius:10px; padding:9px 6px; font-size:13.5px; font-weight:700; color:var(--text-2); white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--card-3); color:var(--text)}
+.vhead{flex:0 0 auto; display:flex; align-items:center; gap:12px; padding-block:12px; background:var(--bg)}
+.vhead h1{font-size:20px; flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+
+/* ---------- Home ---------- */
+.active{display:flex; flex-direction:column; gap:12px; border:1px solid var(--lime-line); background:linear-gradient(var(--lime-soft), var(--lime-soft)), var(--card)}
+.active-top{display:flex; gap:12px; align-items:center}
+.active-top .ic{width:46px; height:46px; border-radius:14px; background:var(--lime); color:var(--lime-ink); display:grid; place-items:center; flex:0 0 auto}
+.active-top .ic svg{width:24px; height:24px}
+.active-top b{display:block; font-size:16px; font-weight:800}
+.two-btn{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.hero{display:flex; flex-direction:column; gap:14px; padding:18px; border-radius:24px; background:var(--card); border:1px solid var(--line-2); position:relative; overflow:hidden}
+.hero::before{content:""; position:absolute; right:-60px; top:-60px; width:180px; height:180px; border-radius:50%; background:var(--lime-soft); pointer-events:none}
+.hero-top{display:flex; justify-content:space-between; align-items:center; gap:8px; position:relative}
+.hero-host{display:flex; align-items:center; gap:12px; position:relative}
+.hero-host .who{flex:1; min-width:0}
+.hero-host b{display:block; font-size:18px; font-weight:800; letter-spacing:-.01em}
+.hero-host span{font-size:13px; color:var(--text-2)}
+.price{font-size:20px; font-weight:800; text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums}
+.price small{font-size:12px; color:var(--text-3); font-weight:600}
+.stats3{display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:8px}
+.stat{background:var(--bg-2); border-radius:14px; padding:10px 12px; min-width:0}
+.stat b{display:block; font-size:18px; font-weight:800; letter-spacing:-.02em; white-space:nowrap; font-variant-numeric:tabular-nums}
+.stat span{font-size:12px; color:var(--text-3); font-weight:600}
+.to-row{display:flex; align-items:center; gap:10px}
+.to-row > span{font-size:13px; color:var(--text-2); font-weight:600; flex:0 0 auto}
+.rebook{display:flex; align-items:center; gap:12px; padding:12px 14px; width:100%; color:var(--text)}
+.rebook .who{flex:1; min-width:0; display:flex; flex-direction:column}
+.rebook b{font-size:14.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.rebook .who > span{font-size:12.5px; color:var(--text-2)}
+.rebook .ic{width:40px; height:40px; border-radius:12px; background:var(--card-3); display:grid; place-items:center; flex:0 0 auto}
+.rebook .ic svg{width:20px; height:20px}
+.tiles{display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:10px}
+.tile{display:flex; flex-direction:column; align-items:center; gap:7px; background:none; border:0; padding:0; font-size:12.5px; font-weight:700; color:var(--text)}
+.tile .ic{width:100%; aspect-ratio:1/1; max-width:100%; border-radius:20px; display:grid; place-items:center}
+.tile .ic svg{width:28px; height:28px}
+.tile.t-map .ic{background:var(--lime-soft); color:var(--lime)}
+.tile.t-sos .ic{background:var(--red-soft); color:var(--red)}
+.tile.t-hw .ic{background:var(--amber-soft); color:var(--amber)}
+.tile.t-rent .ic{background:var(--blue-soft); color:var(--blue)}
+.earnban{display:flex; align-items:center; gap:14px; padding:14px 16px; background:var(--violet-soft); border:1px solid rgba(185,162,255,.25); border-radius:20px; text-align:left; width:100%; color:var(--text)}
+.earnban .ic{width:44px; height:44px; border-radius:14px; background:var(--violet); color:#140F2A; display:grid; place-items:center; flex:0 0 auto}
+.earnban .ic svg{width:22px; height:22px}
+.earnban > svg{width:18px; height:18px; flex:0 0 auto; color:var(--text-3)}
+.earnban b{display:block; font-size:15px}
+.earnban span span{font-size:12.5px; color:var(--text-2)}
+.list{display:flex; flex-direction:column; gap:10px; list-style:none; margin:0; padding:0}
+.lc{display:grid; grid-template-columns:46px minmax(0,1fr) auto; gap:12px; align-items:center; width:100%; text-align:left; background:var(--card); border:1px solid var(--line); border-radius:18px; padding:12px; cursor:pointer; animation:rise .4s cubic-bezier(.2,.8,.2,1) backwards; animation-delay:calc(var(--i, 0) * 35ms)}
+.lc.dim{opacity:.55}
+@keyframes rise{from{opacity:0; transform:translateY(8px)}}
+.lc .who{min-width:0; display:flex; flex-direction:column; gap:2px}
+.lc .who b{font-size:14.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.lc .meta{font-size:12.5px; color:var(--text-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.lc .st{display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:700; color:var(--text-3)}
+.lc .st.open{color:var(--mint)}
+.lc .side{display:flex; flex-direction:column; align-items:flex-end; gap:6px}
+.lc .side .price{font-size:15px}
+.fitl{display:flex; align-items:center; gap:5px; font-size:12.5px; color:var(--text)}
+.fitl svg{width:12px; height:12px; color:var(--lime); flex:0 0 auto}
+.fitl.no{color:var(--red)}
+.empty{display:flex; flex-direction:column; align-items:flex-start; gap:10px}
+.empty p{margin:0}
+
+/* ---------- Map ---------- */
+.map{position:absolute; inset:0; overflow:hidden; background:var(--map); touch-action:none; cursor:grab; user-select:none; -webkit-user-select:none}
+.map.dragging{cursor:grabbing}
+#mapsvg{position:absolute; inset:0; width:100%; height:100%; display:block}
+.m-ground{fill:var(--map)}
+.m-park{fill:var(--park)}
+.m-water{fill:var(--water)}
+.m-river{fill:none; stroke:var(--water); stroke-width:.36; stroke-linecap:round; stroke-linejoin:round}
+.m-road{fill:none; stroke:var(--road); stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; vector-effect:non-scaling-stroke}
+.m-major{fill:none; stroke:var(--road-major); stroke-width:3.4; stroke-linecap:round; stroke-linejoin:round; vector-effect:non-scaling-stroke}
+.m-ring{fill:none; stroke:var(--road-major); stroke-width:2; vector-effect:non-scaling-stroke}
+.m-runway{fill:none; stroke:var(--road-major); stroke-width:.07}
+.overlay{position:absolute; inset:0; pointer-events:none}
+.mlabel{position:absolute; left:0; top:0; z-index:1; font-size:10px; font-weight:700; letter-spacing:.04em; color:var(--text-3); white-space:nowrap}
+.mlabel.road{background:var(--map); padding:0 4px}
+.mlabel.river{font-style:italic; font-weight:600; font-size:13px; color:#3E6A78}
+.pin{position:absolute; left:0; top:0; pointer-events:auto; display:inline-flex; align-items:center; gap:3px; font-size:12px; font-weight:800; line-height:1; padding:6px 9px 6px 7px; border-radius:10px; border:1px solid var(--line-2); background:var(--card-2); color:var(--text-2); white-space:nowrap; font-variant-numeric:tabular-nums; transition:background .15s, color .15s}
+.pin svg{width:11px; height:11px}
+.pin.open{background:var(--lime); color:var(--lime-ink); border-color:var(--lime)}
+.pin.nofit{opacity:.45; border-style:dashed}
+.pin.sel{background:var(--text); color:var(--bg); border-color:var(--text); opacity:1}
+.you{position:absolute; left:0; top:0; z-index:4; width:18px; height:18px; border-radius:50%; background:var(--blue); border:3px solid var(--bg)}
+.you::before{content:""; position:absolute; inset:-11px; border-radius:50%; background:var(--blue); opacity:0; animation:ping 2.6s ease-out infinite}
+@keyframes ping{0%{transform:scale(.3); opacity:.45} 100%{transform:scale(1.2); opacity:0}}
+.map-top{position:absolute; left:0; right:0; top:10px; z-index:8}
+.map-top .chip:not([aria-pressed="true"]){background:var(--card)}
+.mapctl{position:absolute; right:max(12px, env(safe-area-inset-right, 0px)); top:58px; z-index:8; display:flex; flex-direction:column; gap:8px}
+.mapctl button{width:40px; height:40px; border-radius:12px; border:1px solid var(--line-2); background:var(--card); display:grid; place-items:center; color:var(--text)}
+.mapctl svg{width:17px; height:17px}
+.carousel{position:absolute; left:0; right:0; bottom:12px; z-index:8; display:flex; gap:10px; overflow-x:auto; scroll-snap-type:x mandatory; scrollbar-width:none; padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px))}
+.carousel::-webkit-scrollbar{display:none}
+.carousel .lc{flex:0 0 84%; scroll-snap-align:center; animation:none; box-shadow:0 10px 30px rgba(0,0,0,.45)}
+.carousel .lc.sel{border-color:var(--lime-line)}
+
+/* ---------- Sheet ---------- */
+.scrim{position:absolute; inset:0; z-index:20; background:var(--scrim); opacity:0; visibility:hidden; transition:opacity .25s, visibility 0s .25s}
+.scrim.open{opacity:1; visibility:visible; transition:opacity .25s}
+.sheet{position:absolute; left:0; right:0; bottom:0; z-index:21; max-height:93%; display:flex; flex-direction:column; background:var(--bg-2); border-top:1px solid var(--line-2); border-top-left-radius:26px; border-top-right-radius:26px; transform:translateY(102%); visibility:hidden; transition:transform .3s cubic-bezier(.2,.8,.2,1), visibility 0s .3s}
+.sheet.open{transform:none; visibility:visible; transition:transform .32s cubic-bezier(.2,.8,.2,1)}
+.grab{width:40px; height:5px; border-radius:3px; background:var(--line-2); margin:9px auto 2px; flex:0 0 auto}
+.sh-head{flex:0 0 auto; display:flex; align-items:center; gap:12px; padding-block:8px 12px; touch-action:none}
+.sh-head .who{flex:1; min-width:0}
+.sh-head h2{font-size:20px; line-height:1.15}
+.sh-head .sub{font-size:13px; color:var(--text-2)}
+.sh-body{flex:1 1 auto; min-height:0; overflow-y:auto; display:flex; flex-direction:column; gap:16px; padding-block:4px 16px}
+.sh-body > *{flex-shrink:0}
+.sh-foot{flex:0 0 auto; padding-block:12px 14px; border-top:1px solid var(--line); background:var(--bg-2); display:flex; flex-direction:column; gap:8px}
+.grp{display:flex; flex-direction:column; gap:9px}
+.grp > .lbl{font-size:13px; font-weight:700; color:var(--text-2)}
+.slots{display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:8px}
+.slot{border:1px solid var(--line-2); background:var(--card); padding:11px 0; font-size:13px; font-weight:700; border-radius:12px; font-variant-numeric:tabular-nums}
+.slot:disabled{background:transparent; color:var(--text-3); border-style:dashed; cursor:not-allowed}
+.slot.taken:disabled{text-decoration:line-through}
+.slot[aria-pressed="true"]{background:var(--lime); color:var(--lime-ink); border-color:var(--lime)}
+.slot.inrange,.slot.inrange:disabled{background:var(--lime-soft); color:var(--lime); border-color:transparent; border-style:solid; text-decoration:none}
+.slot.peak:not(:disabled)::after{content:" \25B2"; font-size:8px; color:var(--amber)}
+.fitbox{display:flex; gap:10px; align-items:flex-start; font-size:13.5px; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:12px 14px}
+.fitbox > svg{width:18px; height:18px; flex:0 0 auto; margin-top:1px; color:var(--lime)}
+.fitbox.no > svg{color:var(--red)}
+.fitbox .vlink{margin-left:auto; flex:0 0 auto}
+.specs{display:grid; grid-template-columns:1fr 1fr; gap:8px}
+.spec{background:var(--card); border-radius:14px; padding:10px 12px; min-width:0}
+.spec span{display:block; font-size:12px; color:var(--text-3); font-weight:600}
+.spec b{display:block; font-size:14px; margin-top:2px}
+.note{margin:0; border-left:3px solid var(--lime); padding:2px 0 2px 12px; font-size:14.5px; color:var(--text)}
+.note span{display:block; font-size:12px; color:var(--text-3); margin-top:4px; font-weight:600}
+.photos{display:flex; gap:8px; overflow-x:auto}
+.photos img{width:120px; height:84px; object-fit:cover; border-radius:12px; flex:0 0 auto}
+.optrow{display:flex; align-items:center; justify-content:space-between; gap:12px; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px 14px; cursor:pointer}
+.optrow .t{font-weight:700; font-size:14px}
+.optrow .fine{display:block; margin-top:1px}
+.details{border-top:1px solid var(--line); padding-top:4px}
+.details summary{list-style:none; cursor:pointer; display:flex; justify-content:space-between; align-items:center; font-weight:700; font-size:14px; padding-block:10px; color:var(--text-2)}
+.details summary::-webkit-details-marker{display:none}
+.details summary svg{width:16px; height:16px; transition:transform .2s}
+.details[open] summary svg{transform:rotate(90deg)}
+.details > div{display:flex; flex-direction:column; gap:12px; padding-bottom:6px}
+
+/* Swipe to confirm */
+.swipe{position:relative; height:60px; border-radius:18px; background:var(--lime); overflow:hidden; user-select:none; -webkit-user-select:none; touch-action:none; --p:0}
+.swipe-fill{position:absolute; inset:0; background:rgba(10,18,6,.12); transform-origin:left; transform:scaleX(var(--p))}
+.swipe-text{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding-left:44px; color:var(--lime-ink); font-weight:800; font-size:16px; opacity:calc(1 - var(--p) * 1.3); pointer-events:none}
+.swipe-knob{position:absolute; left:6px; top:6px; width:48px; height:48px; border-radius:14px; background:var(--lime-ink); color:var(--lime); display:grid; place-items:center; border:0; cursor:grab; z-index:2; transition:transform .25s cubic-bezier(.2,.8,.2,1); touch-action:none}
+.swipe.drag .swipe-knob{transition:none; cursor:grabbing}
+.swipe-knob svg{width:22px; height:22px}
+.swipe.red{background:var(--red)}
+.swipe.red .swipe-text{color:var(--red-ink)}
+.swipe.red .swipe-knob{background:var(--red-ink); color:var(--red)}
+.swipe:not(.drag) .swipe-knob svg{animation:nudge 1.6s ease-in-out infinite}
+@keyframes nudge{0%,60%,100%{transform:translateX(0)} 30%{transform:translateX(4px)}}
+.swipe-hint{text-align:center; font-size:12px; color:var(--text-3)}
+
+/* Vehicle and place pickers */
+.picklist{display:flex; flex-direction:column; gap:8px}
+.pick{display:flex; align-items:center; gap:12px; width:100%; text-align:left; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:12px 14px; color:var(--text)}
+.pick[aria-pressed="true"],.pick.on{border-color:var(--lime-line); background:linear-gradient(var(--lime-soft), var(--lime-soft)), var(--card)}
+.pick .ic{width:40px; height:40px; border-radius:12px; background:var(--card-3); display:grid; place-items:center; flex:0 0 auto; color:var(--text-2)}
+.pick[aria-pressed="true"] .ic,.pick.on .ic{background:var(--lime); color:var(--lime-ink)}
+.pick .ic svg{width:20px; height:20px}
+.pick .who{flex:1; min-width:0}
+.pick b{display:block; font-size:14.5px}
+.pick .who > span{font-size:12.5px; color:var(--text-2)}
+.pick .chk{width:20px; height:20px; color:var(--lime); flex:0 0 auto}
+.pctgrid{display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:8px}
+.pctgrid button{border:1px solid var(--line-2); background:var(--card); border-radius:12px; padding:11px 0; font-weight:800; font-size:14px; font-variant-numeric:tabular-nums}
+.pctgrid button[aria-pressed="true"]{background:var(--lime); color:var(--lime-ink); border-color:var(--lime)}
+.models{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:8px}
+.model{text-align:left; border:1px solid var(--line); background:var(--card); border-radius:14px; padding:11px 12px; display:flex; flex-direction:column; gap:2px}
+.model b{font-size:14px}
+.model span{font-size:12px; color:var(--text-2)}
+
+/* Success, session, tracking */
+.okmark{width:76px; height:76px; border-radius:24px; background:var(--lime); color:var(--lime-ink); display:grid; place-items:center}
+.okmark svg{width:40px; height:40px}
+.okmark path{stroke-dasharray:40; stroke-dashoffset:40; animation:draw .5s .15s ease-out forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.bigtitle{font-size:30px; line-height:1.05}
+.sess{display:flex; flex-direction:column; align-items:center; gap:18px; padding-block:30px 10px; text-align:center}
+.vbat{position:relative; width:150px; height:250px; border:4px solid var(--line-2); border-radius:30px; padding:8px; background:var(--bg-2)}
+.vbat::before{content:""; position:absolute; top:-16px; left:50%; width:54px; height:12px; transform:translateX(-50%); background:var(--line-2); border-radius:6px 6px 0 0}
+.vbat-fill{position:absolute; left:8px; right:8px; bottom:8px; border-radius:20px; background:var(--lime); transition:height .3s; background-image:repeating-linear-gradient(-45deg, transparent 0 9px, rgba(10,18,6,.12) 9px 18px); background-size:26px 26px; animation:flow 1s linear infinite}
+@keyframes flow{to{background-position:26px 0}}
+.vbat.stopped .vbat-fill{animation:none}
+.vbat-pct{position:absolute; inset:0; display:grid; place-items:center; font-size:40px; font-weight:800; letter-spacing:-.03em; color:var(--text); text-shadow:0 1px 12px rgba(0,0,0,.55)}
+.track{list-style:none; margin:0; padding:0; display:flex; flex-direction:column}
+.tstep{display:grid; grid-template-columns:28px 1fr; gap:12px; position:relative; padding-bottom:18px}
+.tstep:last-child{padding-bottom:0}
+.tstep::before{content:""; position:absolute; left:13px; top:26px; bottom:-2px; width:2px; background:var(--line-2)}
+.tstep:last-child::before{display:none}
+.tstep.done::before{background:var(--lime)}
+.tdot{width:28px; height:28px; border-radius:50%; border:2px solid var(--line-2); background:var(--bg-2); display:grid; place-items:center; position:relative; z-index:1}
+.tstep.done .tdot{background:var(--lime); border-color:var(--lime); color:var(--lime-ink)}
+.tstep.now .tdot{border-color:var(--lime); box-shadow:0 0 0 5px var(--lime-soft)}
+.tdot svg{width:14px; height:14px}
+.tt{font-weight:800; font-size:14.5px}
+.td{font-size:13px; color:var(--text-2)}
+.tstep.todo .tt{color:var(--text-3)}
+.stars{display:flex; gap:6px; justify-content:center}
+.stars button{border:0; background:none; padding:2px; font-size:32px; line-height:1; color:var(--line-2)}
+.stars.small button{font-size:22px}
+.stars button.on{color:var(--amber)}
+
+/* ---------- Bookings ---------- */
+.bk{display:flex; flex-direction:column; gap:12px}
+.bk-top{display:flex; gap:12px; align-items:center}
+.bk-top .who{flex:1; min-width:0; display:flex; flex-direction:column}
+.bk-top b{font-size:15px; display:flex; align-items:center; gap:6px; flex-wrap:wrap}
+.bk-top .who > span{font-size:12.5px; color:var(--text-2)}
+.datebox{width:48px; height:52px; flex:0 0 auto; border-radius:14px; background:var(--card-3); display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:10px; font-weight:800; text-transform:uppercase; color:var(--text-2)}
+.datebox b{font-size:19px; color:var(--text); line-height:1.05}
+.datebox.ic.red{background:var(--red-soft); color:var(--red)}
+.datebox.ic.blue{background:var(--blue-soft); color:var(--blue)}
+.datebox.ic.violet{background:var(--violet-soft); color:var(--violet)}
+.datebox svg{width:22px; height:22px}
+.bk-act{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+
+/* ---------- Earn and forms ---------- */
+.calc{display:flex; flex-direction:column; gap:14px; background:var(--card); border:1px solid var(--line-2); border-radius:24px; padding:18px}
+.calc .big{font-size:38px; font-weight:800; letter-spacing:-.03em; color:var(--lime); line-height:1}
+input[type="range"]{width:100%; accent-color:var(--lime); margin:4px 0}
+.lblrow{display:flex; justify-content:space-between; align-items:baseline; gap:10px; font-size:13.5px; font-weight:700; color:var(--text-2)}
+.lblrow output{font-weight:800; font-size:15px; color:var(--text); font-variant-numeric:tabular-nums}
+.chart{display:block; width:100%; height:auto}
+.chart .bar{fill:var(--card-3); transform-box:fill-box; transform-origin:bottom; animation:grow .6s cubic-bezier(.2,.8,.2,1) backwards}
+.chart .bar.top{fill:var(--lime)}
+.chart text{fill:var(--text-3); font-size:10px; font-weight:700; font-family:var(--font)}
+@keyframes grow{from{transform:scaleY(0)}}
+.form{display:flex; flex-direction:column; gap:16px}
+.field{display:flex; flex-direction:column; gap:7px; border:0; margin:0; padding:0; min-width:0}
+.field > label,.flabel{font-size:13.5px; font-weight:700; color:var(--text-2)}
+legend.flabel{padding:0; margin-bottom:7px}
+.input{width:100%; min-width:0; border:1px solid var(--line-2); background:var(--card); border-radius:14px; padding:13px 14px; font-size:16px; color:var(--text)}
+.input::placeholder{color:var(--text-3)}
+.input:focus{outline:none; border-color:var(--lime)}
+.input[aria-invalid="true"]{border-color:var(--red)}
+select.input{appearance:none; -webkit-appearance:none; padding-right:36px}
+.selwrap{position:relative}
+.selwrap::after{content:""; position:absolute; right:16px; top:50%; width:7px; height:7px; border-right:2px solid var(--text-3); border-bottom:2px solid var(--text-3); transform:translateY(-70%) rotate(45deg); pointer-events:none}
+textarea.input{resize:vertical; min-height:64px}
+.err{font-size:12.5px; color:var(--red); font-weight:600}
+.two{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.switch{display:flex; align-items:center; justify-content:space-between; gap:12px; border:1px solid var(--line); border-radius:14px; padding:12px 14px; background:var(--card); cursor:pointer}
+.switch .t{font-weight:700; font-size:14px}
+.switch .fine{display:block; margin-top:1px}
+.switch input{appearance:none; -webkit-appearance:none; width:46px; height:28px; border-radius:999px; background:var(--card-3); position:relative; flex:0 0 auto; margin:0; cursor:pointer; transition:background .2s}
+.switch input::after{content:""; position:absolute; top:3px; left:3px; width:22px; height:22px; border-radius:50%; background:var(--text-2); transition:transform .2s, background .2s}
+.switch input:checked{background:var(--lime)}
+.switch input:checked::after{transform:translateX(18px); background:var(--lime-ink)}
+.days{display:grid; grid-template-columns:repeat(7, minmax(0,1fr)); gap:6px}
+.days button{border:1px solid var(--line-2); background:var(--card); border-radius:12px; padding:10px 0; font-size:13px; font-weight:800; color:var(--text-2)}
+.days button[aria-pressed="true"]{background:var(--lime); color:var(--lime-ink); border-color:var(--lime)}
+.photo-in{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+.photo-in img{width:64px; height:64px; object-fit:cover; border-radius:12px}
+.filebtn{position:relative; overflow:hidden}
+.filebtn input{position:absolute; inset:0; opacity:0; cursor:pointer}
+.ml{display:flex; flex-direction:column; gap:10px}
+.ml .switch{border:0; padding:0; background:none}
+
+/* ---------- Profile ---------- */
+.me-head{display:flex; gap:14px; align-items:center}
+.me-av{width:58px; height:58px; border-radius:18px; background:var(--lime); color:var(--lime-ink); display:grid; place-items:center}
+.me-av svg{width:30px; height:30px}
+.rows{background:var(--card); border:1px solid var(--line); border-radius:18px; overflow:hidden}
+.mrow{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px; border:0; border-bottom:1px solid var(--line); font-size:14.5px; width:100%; background:none; text-align:left}
+.mrow:last-child{border-bottom:0}
+.mrow .r{color:var(--text-2); font-size:13px; display:flex; align-items:center; gap:10px}
+.plus{display:flex; flex-direction:column; gap:10px; padding:18px; border-radius:22px; background:var(--lime); color:var(--lime-ink)}
+.plus h2{font-size:22px}
+.plus p{margin:0; font-weight:600; font-size:13.5px; opacity:.85}
+.plus .btn{background:var(--lime-ink); color:var(--lime); align-self:flex-start}
+
+/* ---------- Tabs and toast ---------- */
+.tabs{flex:0 0 auto; display:grid; grid-template-columns:repeat(5,1fr); border-top:1px solid var(--line); background:var(--bg)}
+.tab{position:relative; border:0; background:none; height:62px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; font-size:11.5px; font-weight:700; color:var(--text-3)}
+.tab svg{width:23px; height:23px}
+.tab[aria-current="page"]{color:var(--lime)}
+.badge{position:absolute; top:8px; left:calc(50% + 6px); font-size:10px; font-weight:800; min-width:17px; height:17px; padding:0 4px; border-radius:999px; background:var(--lime); color:var(--lime-ink); display:grid; place-items:center}
+.toast{position:absolute; left:50%; bottom:80px; z-index:40; transform:translate(-50%, 16px); opacity:0; background:var(--text); color:var(--bg); padding:11px 16px; border-radius:14px; font-size:13.5px; font-weight:700; pointer-events:none; white-space:nowrap; transition:opacity .25s, transform .25s}
+.toast.show{opacity:1; transform:translate(-50%, 0)}
+
+/* ---------- Wide screens: a full website layout ---------- */
+.brandwrap{display:flex; align-items:center; gap:8px; flex:0 0 auto}
+.wordmark{display:none; font-weight:800; font-size:21px; letter-spacing:-.03em}
+.wordmark b{color:var(--lime); font-weight:800}
+.topnav{display:none}
+.bgrid{display:flex; flex-direction:column; gap:10px}
+.cols{display:flex; flex-direction:column; gap:22px}
+.col{display:flex; flex-direction:column; gap:22px; min-width:0}
+.pin.hov{box-shadow:0 0 0 3px var(--lime-line); z-index:9 !important}
+.app.wide{max-width:none; border:0}
+.app.wide .top{padding-block:12px; gap:18px}
+.app.wide .wordmark{display:block}
+.app.wide .topnav{display:flex; flex:1; gap:4px; justify-content:center}
+.app.wide .tabs{display:none}
+.app.wide .place{flex:0 1 280px}
+.app.wide .vchip{max-width:260px}
+.topnav .tab{flex-direction:row; height:42px; padding:0 16px; border-radius:12px; font-size:14px; gap:8px}
+.topnav .tab svg{width:19px; height:19px}
+.topnav .tab:hover{background:var(--card); color:var(--text)}
+.topnav .tab[aria-current="page"]{background:var(--lime-soft); color:var(--lime)}
+.topnav .badge{position:static; margin-left:2px}
+.app.wide .topnav .tab[data-v="map"]{display:none}
+.app.wide #v-home{right:auto; width:460px; border-right:1px solid var(--line)}
+.app.wide #v-map{left:460px}
+.app.wide #v-map .carousel,.app.wide #v-map .map-top{display:none}
+.app.wide .mapctl{top:16px}
+.app.wide #v-home .t-map,.app.wide #v-home .see-map{display:none}
+.app.wide #v-home .tiles{grid-template-columns:repeat(3, minmax(0,1fr))}
+.app.wide #v-home .tile .ic{aspect-ratio:auto; height:76px}
+.app.wide .scrim{display:none}
+.app.wide .sheet{left:auto; top:0; width:440px; max-height:none; border-radius:0; border-top:0; border-left:1px solid var(--line-2); transform:translateX(102%); box-shadow:-20px 0 50px rgba(0,0,0,.35)}
+.app.wide .sheet.open{transform:none}
+.app.wide .grab{display:none}
+.app.wide .sh-head{padding-top:18px}
+.app.wide .wrap{max-width:1120px; margin-left:auto; margin-right:auto; width:100%}
+.app.wide .narrow{max-width:640px; margin-left:auto; margin-right:auto; width:100%}
+.app.wide .bgrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(340px, 1fr)); gap:14px}
+.app.wide .cols{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:28px; align-items:start}
+.app.wide #v-highway .list{display:grid; grid-template-columns:repeat(auto-fill, minmax(360px, 1fr))}
+.app.wide .toast{bottom:28px}
+.app.wide .stack{padding-block:24px 36px}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none !important; transition:none !important}
+  .okmark path{stroke-dashoffset:0}
+}
+
+/* Keep content clear of the phone's notch and home bar */
+:root{padding-top:env(safe-area-inset-top, 0px); padding-bottom:env(safe-area-inset-bottom, 0px)}
+[hidden]{display:none !important}
+img{max-width:100%}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="top pad" id="top">
+    <div class="brandwrap"><svg class="logo" viewBox="0 0 32 32" role="img" aria-label="ChargeIt"><path class="lg-handle" d="M12 7.5V5.6A2.6 2.6 0 0 1 14.6 3h2.8A2.6 2.6 0 0 1 20 5.6v1.9"/><rect class="lg-body" x="5" y="7" width="22" height="22" rx="6"/><path class="lg-charge" d="M5 22h22v1a6 6 0 0 1-6 6H11a6 6 0 0 1-6-6z"/><path class="lg-bolt" d="M17.8 10.2 11.6 18.4h4.3l-1.4 6.6 6.3-8.4h-4.3z"/></svg><span class="wordmark" aria-hidden="true">charge<b>it</b></span></div>
+    <nav class="topnav" id="topnav" aria-label="Primary"></nav>
+    <button type="button" class="place" data-act="places" id="placebtn" aria-label="Change location"></button>
+    <button type="button" class="vchip" data-act="vehicle" id="vchip" aria-label="Change vehicle or battery level"></button>
+  </header>
+
+  <main class="views">
+    <section class="view" id="v-home" aria-label="Home"></section>
+    <section class="view" id="v-map" aria-label="Map" hidden>
+      <div class="map" id="map">
+        <svg id="mapsvg" aria-hidden="true" preserveAspectRatio="none"></svg>
+        <div class="overlay" id="overlay"></div>
+      </div>
+      <div class="map-top"><div class="chips pad" id="mapchips" role="group" aria-label="Filters"></div></div>
+      <div class="mapctl">
+        <button type="button" data-act="zin" aria-label="Zoom in"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+        <button type="button" data-act="zout" aria-label="Zoom out"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+        <button type="button" data-act="zfit" aria-label="Show all chargers"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
+      <div class="carousel" id="carousel"></div>
+    </section>
+    <section class="view" id="v-bookings" aria-label="Bookings" hidden></section>
+    <section class="view" id="v-earn" aria-label="Earn" hidden></section>
+    <section class="view" id="v-profile" aria-label="Profile" hidden></section>
+    <section class="view" id="v-highway" aria-label="Highway stops" hidden></section>
+    <section class="view" id="v-session" aria-label="Charging session" hidden></section>
+    <section class="view" id="v-track" aria-label="Rescue status" hidden></section>
+    <section class="view" id="v-list" aria-label="List your charger" hidden>
+      <div class="vhead pad narrow"><button type="button" class="iconbtn" data-act="tab" data-v="earn" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 6l-6 6 6 6"/></svg></button><h1>List your charger</h1></div>
+      <div class="scroll"><form class="form pad narrow" id="hostform" novalidate style="padding-block:8px 28px">
+        <div class="field"><label for="h-name">Your name</label><input class="input" id="h-name" autocomplete="name" placeholder="e.g. Hetal Shah"><div class="err" id="e-name" hidden></div></div>
+        <div class="field"><label for="h-address">Address or landmark</label><input class="input" id="h-address" placeholder="e.g. B-12, near Shyamal Cross Road"><div class="err" id="e-address" hidden></div></div>
+        <div class="field"><label for="h-area">Area</label><div class="selwrap"><select class="input" id="h-area"></select></div><div class="err" id="e-area" hidden></div></div>
+        <fieldset class="field"><legend class="flabel">Charger type</legend><div class="chips" id="h-kind" role="group" aria-label="Charger type"></div></fieldset>
+        <label class="switch" for="h-cable" id="w-cable"><span><span class="t">Cable attached</span><span class="fine">Drivers don't need to bring one</span></span><input type="checkbox" id="h-cable" checked></label>
+        <label class="switch" for="h-s2w" id="w-s2w"><span><span class="t">3-pin socket for scooters too</span><span class="fine">They bring their own charger</span></span><input type="checkbox" id="h-s2w" checked></label>
+        <div class="field"><div class="lblrow"><label for="h-price">Car price per hour</label><output id="o-price" for="h-price"></output></div><input type="range" id="h-price" min="30" max="300" step="5" value="120"><div class="fine" id="h-suggest"></div></div>
+        <div class="field"><span class="flabel">Days open</span><div class="days" id="h-days" role="group" aria-label="Days open"></div><div class="err" id="e-days" hidden></div></div>
+        <div class="field"><span class="flabel">Hours</span><div class="two"><div class="selwrap"><select class="input" id="h-open" aria-label="Opens at"></select></div><div class="selwrap"><select class="input" id="h-close" aria-label="Closes at"></select></div></div><div class="err" id="e-hours" hidden></div></div>
+        <details class="details"><summary>More options <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 6l6 6-6 6"/></svg></summary><div>
+          <div class="field" id="w-p2w"><div class="lblrow"><label for="h-p2w">Scooter and auto price per hour</label><output id="o-p2w" for="h-p2w"></output></div><input type="range" id="h-p2w" min="10" max="60" step="5" value="25"></div>
+          <label class="switch" for="h-rentcable" id="w-rentcable"><span><span class="t">Rent out a spare cable</span><span class="fine">Drivers add it for &#8377;49</span></span><input type="checkbox" id="h-rentcable"></label>
+          <label class="switch" for="h-peak"><span><span class="t">Peak pricing</span><span class="fine">20% more from 6 to 10 PM</span></span><input type="checkbox" id="h-peak"></label>
+          <div class="field"><span class="flabel">Photos</span><div class="photo-in" id="h-photo-prev"><span class="btn ghost small filebtn">Add photos<input type="file" id="h-photos" accept="image/*" multiple></span></div><span class="fine">In this demo, photos stay on your device.</span></div>
+          <div class="field"><label for="h-note">Note for drivers</label><textarea class="input" id="h-note" rows="2" placeholder="e.g. Covered parking, ask the guard for B block"></textarea></div>
+        </div></details>
+        <div class="card" id="h-est"></div>
+        <button class="btn block" type="submit">Publish listing</button>
+      </form></div>
+    </section>
+  </main>
+
+  <nav class="tabs pad" id="tabs" aria-label="Main"></nav>
+  <div class="scrim" id="scrim"></div>
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Details"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</div>
+
+<script>
+(() => {
+"use strict";
+
+/* =========================================================
+   1. DATA
+   Hosts, prices and services are made up. Vehicle battery
+   sizes and AC charging limits come from carmaker figures.
+   ========================================================= */
+const ALL_DAYS = [0,1,2,3,4,5,6];
+const CITY = [
+  { id:"c1", host:"Hetal Shah", area:"Satellite", address:"Near Shyamal Cross Road", lat:23.0140, lng:72.5310, kind:"t7", cable:true, socket2w:true, price:120, price2w:25, open:9, close:18, rating:4.9, sessions:31, note:"Covered parking in B block. Tell the guard you are here for ChargeIt." },
+  { id:"c2", host:"Rakesh Patel", area:"Bopal", address:"Near Bopal Circle", lat:23.0350, lng:72.4680, kind:"socket", price:60, price2w:25, open:8, close:20, rating:4.6, sessions:12, note:"15A socket in the driveway. Bring the portable charger that came with your vehicle." },
+  { id:"c3", host:"Nisha Desai", area:"Prahlad Nagar", address:"Behind Prahlad Nagar Garden", lat:23.0085, lng:72.5065, kind:"t7", cable:true, price:130, open:10, close:22, rating:4.8, sessions:44, peak:true, note:"Basement parking, slot 14. The lift is right next to it." },
+  { id:"c4", host:"Kunal Mehta", area:"Navrangpura", address:"Off CG Road, near Stadium Circle", lat:23.0405, lng:72.5605, kind:"t11", cable:true, socket2w:true, price:170, price2w:30, open:6, close:24, rating:4.9, sessions:58, note:"11 kW wall box. The app shows the real speed for your car." },
+  { id:"c5", host:"Priya Joshi", area:"Thaltej", address:"Near Thaltej Cross Road", lat:23.0560, lng:72.5040, kind:"t7", cable:false, cableRent:true, price:110, open:9, close:17, rating:4.7, sessions:19, note:"Type 2 socket on the wall. I have a spare cable you can rent." },
+  { id:"c6", host:"Jignesh Parmar", area:"Chandkheda", address:"Near Visat Circle", lat:23.0985, lng:72.5860, kind:"socket", price:55, price2w:20, open:6, close:22, rating:4.5, sessions:8, note:"Open driveway, easy to reach from Visat Circle." },
+  { id:"c7", host:"Dhruv Vyas", area:"Maninagar", address:"Near Kankaria Lake, south side", lat:22.9990, lng:72.6040, kind:"t7", cable:true, price:115, open:0, close:24, rating:4.8, sessions:27, note:"Open all night. The gate code is shared after booking." },
+  { id:"c8", host:"Mansi Thakkar", area:"Vastrapur", address:"Near Vastrapur Lake", lat:23.0425, lng:72.5265, kind:"t7", cable:true, socket2w:true, price:125, price2w:25, open:11, close:19, rating:4.9, sessions:36, days:[1,2,3,4,5,6], note:"Visitor parking next to the clubhouse. Closed on Sundays." },
+  { id:"c9", host:"Imran Sheikh", area:"Paldi", address:"Near Paldi Cross Road", lat:23.0100, lng:72.5590, kind:"socket", price:50, price2w:20, open:7, close:21, rating:4.7, sessions:64, note:"Scooter friendly. Three sockets under the shed." },
+  { id:"c10", host:"Kavya Iyer", area:"Gota", address:"Near Gota Cross Road", lat:23.1010, lng:72.5420, kind:"t11", cable:true, price:160, open:0, close:24, rating:4.8, sessions:22, note:"Right off SG Highway. Open all night." }
+];
+const HIGHWAY = [
+  { id:"h1", host:"Green Mile Dhaba", area:"Nadiad exit", route:"Vadodara", road:"Ahmedabad to Vadodara Expressway", from:52, kind:"t7", cable:true, socket2w:true, price:140, price2w:30, open:0, close:24, rating:4.7, sessions:120, amen:["Food","Washroom","Wi-Fi"], note:"Charge while you eat. Ask for the ChargeIt parking row." },
+  { id:"h2", host:"Saffron Leaf Homestay", area:"Near Himmatnagar", route:"Udaipur", road:"NH 48 towards Udaipur", from:80, kind:"t7", cable:true, price:130, open:6, close:23, rating:4.8, sessions:41, amen:["Tea","Washroom","Rest room"], note:"Family run. Tea is on the house while you wait." },
+  { id:"h3", host:"Rann Road Cafe", area:"Near Limbdi", route:"Rajkot", road:"Ahmedabad to Rajkot Highway", from:95, kind:"t11", cable:true, socket2w:true, price:170, price2w:30, open:0, close:24, rating:4.6, sessions:77, amen:["Food","Washroom","Shade"], note:"Covered bays, open all night." },
+  { id:"h4", host:"Lakeview Farm Stay", area:"Near Bharuch", route:"Mumbai", road:"NH 48 towards Mumbai", from:190, kind:"t7", cable:false, cableRent:true, price:135, open:7, close:22, rating:4.5, sessions:18, amen:["Food","Washroom","Garden"], note:"Spare Type 2 cable available to rent." },
+  { id:"h5", host:"Narmada Trail Inn", area:"Near Rajpipla", route:"Vadodara", road:"Road to the Statue of Unity", from:200, kind:"t7", cable:true, price:150, open:8, close:22, rating:4.8, sessions:35, amen:["Food","Washroom","Rooms"], note:"Good stop before the Statue of Unity." }
+].map(h => Object.assign(h, { highway:true }));
+
+const VEHICLES = [
+  { id:"nexon45", type:"car", brand:"Tata", model:"Nexon EV", variant:"45 kWh", kwh:45, ac:7.2 },
+  { id:"curvv55", type:"car", brand:"Tata", model:"Curvv EV", variant:"55 kWh", kwh:55, ac:7.2 },
+  { id:"tiago24", type:"car", brand:"Tata", model:"Tiago EV", variant:"24 kWh", kwh:24, ac:3.3 },
+  { id:"windsor", type:"car", brand:"MG", model:"Windsor EV", variant:"52.9 kWh", kwh:52.9, ac:7.4 },
+  { id:"zsev", type:"car", brand:"MG", model:"ZS EV", variant:"50.3 kWh", kwh:50.3, ac:7.4 },
+  { id:"comet", type:"car", brand:"MG", model:"Comet EV", variant:"17.3 kWh", kwh:17.3, ac:3.3 },
+  { id:"xuv400", type:"car", brand:"Mahindra", model:"XUV400", variant:"39.4 kWh", kwh:39.4, ac:7.2 },
+  { id:"be6", type:"car", brand:"Mahindra", model:"BE 6", variant:"59 kWh", kwh:59, ac:7.2 },
+  { id:"xev9e", type:"car", brand:"Mahindra", model:"XEV 9e", variant:"79 kWh", kwh:79, ac:11.2 },
+  { id:"creta", type:"car", brand:"Hyundai", model:"Creta Electric", variant:"51.4 kWh", kwh:51.4, ac:11 },
+  { id:"atto3", type:"car", brand:"BYD", model:"Atto 3", variant:"60.48 kWh", kwh:60.48, ac:7 },
+  { id:"ola", type:"scooter", brand:"Ola", model:"S1 Pro", variant:"4 kWh", kwh:4, ac:0.75 },
+  { id:"iqube", type:"scooter", brand:"TVS", model:"iQube ST", variant:"5.1 kWh", kwh:5.1, ac:0.75 },
+  { id:"chetak", type:"scooter", brand:"Bajaj", model:"Chetak", variant:"3.2 kWh", kwh:3.2, ac:0.75 },
+  { id:"vida", type:"scooter", brand:"Vida", model:"V1 Pro", variant:"3.94 kWh", kwh:3.94, ac:0.75 },
+  { id:"eauto", type:"auto", brand:"Any brand", model:"E-auto", variant:"About 8 kWh", kwh:8, ac:2 }
+];
+const TYPE_LABEL = { car:"Car", scooter:"Scooter", auto:"Auto" };
+const KM_PER_KWH = { car:6.5, scooter:35, auto:14 };   // rough real-world estimates
+const KINDS = { socket:{ kw:3.3, label:"3.3 kW socket" }, t7:{ kw:7.4, label:"7.4 kW wall box" }, t11:{ kw:11, label:"11 kW wall box" } };
+const FEE = 0.10, UNIT = 8, CABLE_RENT = 49;
+const PLACES = {
+  current:{ name:"Current location", short:"Law Garden", sub:"Ellisbridge", lat:23.0268, lng:72.5585, icon:"loc" },
+  home:{ name:"Home", short:"Satellite", sub:"Near Jodhpur Cross Road", lat:23.0205, lng:72.5265, icon:"home" },
+  work:{ name:"Office", short:"Prahlad Nagar", sub:"Corporate Road", lat:23.0125, lng:72.5115, icon:"build" }
+};
+const AREAS = {
+  "Bodakdev":[23.0420,72.5110], "Bopal":[23.0330,72.4660], "Chandkheda":[23.1080,72.5850],
+  "Ellisbridge":[23.0240,72.5650], "Ghatlodia":[23.0630,72.5430], "Gota":[23.1020,72.5400],
+  "Maninagar":[22.9960,72.6030], "Naranpura":[23.0570,72.5530], "Navrangpura":[23.0370,72.5600],
+  "Paldi":[23.0120,72.5620], "Prahlad Nagar":[23.0100,72.5070], "Satellite":[23.0250,72.5220],
+  "South Bopal":[23.0180,72.4700], "Thaltej":[23.0570,72.5020], "Vastrapur":[23.0390,72.5270],
+  "Vejalpur":[23.0000,72.5220]
+};
+const RENTALS = [
+  { id:"cable", name:"Type 2 cable, 5 m", desc:"For wall boxes without a cable", price:99, fits:["car"] },
+  { id:"porta", name:"Portable car charger", desc:"Charge from any 15A socket", price:199, fits:["car"] },
+  { id:"scoot", name:"Spare scooter charger", desc:"For a long day out", price:79, fits:["scooter","auto"] }
+];
+const INSTALL = { socket:{ lo:8000, hi:15000 }, t7:{ lo:25000, hi:45000 }, t11:{ lo:45000, hi:75000 } };
+const RESCUE = { visit:349, perUnit:24 };
+
+/* =========================================================
+   2. SAVING (only in this browser, for the demo)
+   ========================================================= */
+const K = { list:"chargeit.listings.v3", book:"chargeit.bookings.v3", garage:"chargeit.garage.v3", prefs:"chargeit.prefs.v3" };
+const store = {
+  get(k, fb){ try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : fb; } catch(e){ return fb; } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
+};
+const arr = v => Array.isArray(v) ? v : [];
+
+/* =========================================================
+   3. STATE: what the app remembers right now
+   ========================================================= */
+const savedGarage = store.get(K.garage, null);
+const S = {
+  view:"home", tab:"home",
+  garage: savedGarage && arr(savedGarage.list).length ? savedGarage : { list:[{ id:"nexon45", pct:30 }], active:0 },
+  listings: arr(store.get(K.list, [])),
+  bookings: arr(store.get(K.book, null)),
+  prefs: Object.assign({ pay:"upi", plus:false, place:"current", target:80 }, store.get(K.prefs, {})),
+  filters: new Set(["fits"]),
+  selected:null, qb:null, hw:"All",
+  hostDays:new Set(ALL_DAYS), hostKind:"t7",
+  earn:{ kind:"t7", price:120, hrs:2 }, inst:{ kind:"t7" },
+  rescue:{ kwh:10 }, rent:{ item:"cable", days:1, drop:true },
+  track:null, session:null
+};
+// First visit: add one sample past session so "Rebook" has something to show.
+if (!store.get(K.book, null)){
+  const y = new Date(); y.setDate(y.getDate() - 1);
+  S.bookings = [{ kind:"charge", code:"CHG-2817", chargerId:"c1", date:dateKey(y), start:10, dur:3, total:360, host:"Hetal Shah", hostShort:"Hetal", area:"Satellite", vehicle:"Tata Nexon EV", km:126, to:80, ended:true, rating:5, sample:true, made:y.getTime() }];
+  store.set(K.book, S.bookings);
+}
+const photos = {};
+const allChargers = () => CITY.concat(HIGHWAY, S.listings);
+const byId = id => allChargers().find(c => c.id === id);
+const gEntry = () => S.garage.list[S.garage.active] || S.garage.list[0];
+const veh = () => VEHICLES.find(v => v.id === gEntry().id) || VEHICLES[0];
+const pct = () => gEntry().pct;
+const setPct = p => { gEntry().pct = Math.max(0, Math.min(100, Math.round(p))); saveGarage(); };
+const saveGarage = () => store.set(K.garage, S.garage);
+const savePrefs = () => store.set(K.prefs, S.prefs);
+const place = () => PLACES[S.prefs.place] || PLACES.current;
+const MQ = window.matchMedia ? window.matchMedia("(min-width: 900px)") : null;
+const wide = () => !!(MQ && MQ.matches);
+
+/* =========================================================
+   4. HELPERS
+   ========================================================= */
+const $ = (sel, root = document) => root.querySelector(sel);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, ch => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[ch]));
+const rupee = n => "₹" + Math.round(n).toLocaleString("en-IN");
+const initials = name => name.trim().split(/\s+/).slice(0, 2).map(w => w[0]).join("").toUpperCase();
+const firstName = name => name.trim().split(/\s+/)[0];
+const hostShort = c => c.highway ? c.host : firstName(c.host);
+const mkCode = p => p + "-" + Math.floor(1000 + Math.random() * 9000);
+const fmtKw = k => (Math.round(k * 100) / 100) + " kW";
+function fmtDur(h){
+  if (!(h > 0)) return "0m";
+  let m = Math.round(h * 60); if (m < 60) return m + "m";
+  const hh = Math.floor(m / 60); m = m % 60; return hh + "h" + (m ? " " + m + "m" : "");
+}
+function hLabel(h){ if (h === 24) return "midnight"; const ap = h < 12 ? "AM" : "PM", hh = h % 12 === 0 ? 12 : h % 12; return hh + " " + ap; }
+const is24 = c => c.open === 0 && c.close === 24;
+const daysOf = c => c.days || ALL_DAYS;
+const DAY_SHORT = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const DAY_LONG = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+function hoursText(c){
+  const t = is24(c) ? "Open 24 hours" : hLabel(c.open) + " to " + hLabel(c.close);
+  const d = daysOf(c); return d.length === 7 ? t : t + ", " + d.map(x => DAY_SHORT[x]).join(" ");
+}
+function nowH(){ const d = new Date(); return d.getHours() + d.getMinutes() / 60; }
+function status(c){
+  const today = new Date().getDay(), h = nowH();
+  if (!daysOf(c).includes(today)) return { open:false, text:"Closed today" };
+  if (is24(c)) return { open:true, text:"Open 24 hours" };
+  if (h >= c.open && h < c.close) return { open:true, text:"Open till " + hLabel(c.close) };
+  if (h < c.open) return { open:false, text:"Opens " + hLabel(c.open) };
+  return { open:false, text:"Opens tomorrow " + hLabel(c.open) };
+}
+function distKm(lat, lng){
+  const P = place(), R = 6371, r = x => x * Math.PI / 180;
+  const dLat = r(lat - P.lat), dLng = r(lng - P.lng);
+  const a = Math.sin(dLat/2)**2 + Math.cos(r(P.lat)) * Math.cos(r(lat)) * Math.sin(dLng/2)**2;
+  return 2 * R * Math.asin(Math.sqrt(a));
+}
+const distText = c => c.highway ? c.from + " km away" : distKm(c.lat, c.lng).toFixed(1) + " km";
+function dayDate(offset){ const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate() + offset); return d; }
+function dateKey(d){ return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0"); }
+const dayLbl = d => d.toLocaleDateString("en-IN", { weekday:"short", day:"numeric", month:"short" });
+const kwOf = c => KINDS[c.kind].kw;
+const chargerLabel = c => c.kind === "socket" ? "3.3 kW socket" : kwOf(c) + " kW Type 2";
+function batteryMini(p){ const cls = p < 15 ? "low" : p < 35 ? "mid" : "ok"; return '<span class="bat ' + cls + '" aria-hidden="true"><span class="bat-fill" style="width:' + Math.max(5, Math.min(100, p)) + '%"></span></span>'; }
+const IC = {
+  bolt:'<path d="M13 2.5 5 13.5h6l-1 8 8-11h-6z"/>',
+  home:'<path d="M3.5 11 12 4l8.5 7v9h-17z"/>',
+  map:'<path d="M9 4.5 3.5 6.5v13l5.5-2 6 2 5.5-2v-13l-5.5 2z"/><path d="M9 4.5v13M15 6.5v13"/>',
+  cal:'<path d="M4 6.5h16V20H4zM4 10.5h16M8.5 3.5v5M15.5 3.5v5"/>',
+  rupee:'<path d="M7 5h10M7 9h10M10 5c3.5 0 5 1.6 5 4s-1.5 4-5 4H8l7 6"/>',
+  user:'<path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4.5 20.5a7.5 7.5 0 0 1 15 0"/>',
+  road:'<path d="M9 3 5 21M15 3l4 18M12 5v2.5M12 10.75v2.5M12 16.5V19"/>',
+  plug:'<path d="M9 3v5M15 3v5M6.5 8h11v3a5.5 5.5 0 0 1-11 0zM12 16.5V21"/>',
+  sos:'<path d="M3 7.5h15a1.5 1.5 0 0 1 1.5 1.5v6a1.5 1.5 0 0 1-1.5 1.5H3A1.5 1.5 0 0 1 1.5 15V9A1.5 1.5 0 0 1 3 7.5zM22.5 10.5v3M5 10.5v3"/>',
+  wrench:'<path d="M14.5 6.5a4 4 0 0 0-5.3 5.3L3.5 17.5l3 3 5.7-5.7a4 4 0 0 0 5.3-5.3l-2.5 2.5-2.3-.7-.7-2.3z"/>',
+  loc:'<path d="M12 21s-6.5-6.1-6.5-11a6.5 6.5 0 0 1 13 0C18.5 14.9 12 21 12 21z"/><path d="M12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/>',
+  build:'<path d="M4 21V5.5l8-2.5v18M12 21V9l8 2.5V21M7.5 8h1.5M7.5 12h1.5M7.5 16h1.5M15.5 14h1.5M15.5 17.5h1.5"/>',
+  car:'<path d="M5 16.5v2M19 16.5v2M3.5 16.5h17v-4l-2-5.5h-13l-2 5.5z"/><path d="M7 13.5h.01M17 13.5h.01"/>',
+  scooter:'<path d="M6.5 18.5a2.5 2.5 0 1 0 0-.01M17.5 18.5a2.5 2.5 0 1 0 0-.01M9 18.5h6l2-7h-4M13 4.5h3l1.5 7"/>',
+  rebook:'<path d="M4 12a8 8 0 1 0 2.4-5.7M4 4.5v4h4"/>',
+  nav:'<path d="M4 11.5 20 4l-7.5 16-2-6.5z"/>',
+  check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  chev:'<path d="M9.5 6l6 6-6 6"/>',
+  down:'<path d="M6 9.5l6 6 6-6"/>',
+  back:'<path d="M14.5 6l-6 6 6 6"/>',
+  close:'<path d="M6 6l12 12M18 6 6 18"/>',
+  arrow:'<path d="M5 12h13M13 6.5l5.5 5.5-5.5 5.5"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>'
+};
+const ico = (n, sw) => '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="' + (sw || 2) + '" stroke-linecap="round" stroke-linejoin="round">' + IC[n] + '</svg>';
+const boltFill = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2.5 5 13.5h6l-1 8 8-11h-6z" fill="currentColor"/></svg>';
+let toastTimer;
+function toast(msg){ const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 2300); }
+
+/* =========================================================
+   5. MATCHING: does this charger fit my vehicle, and how fast?
+   ========================================================= */
+function compat(c, v){
+  if (v.type === "car"){
+    if (c.kind === "socket") return { ok:true, kw:Math.min(v.ac, 3.3), note:"Use the portable charger that came with your car." };
+    const k = Math.min(v.ac, kwOf(c));
+    const slower = v.ac < kwOf(c) ? " Your car takes up to " + fmtKw(v.ac) + ", so that's your speed." : "";
+    if (c.cable) return { ok:true, kw:k, note:"Fits your car. Cable is attached." + slower };
+    if (c.cableRent) return { ok:true, kw:k, rentable:true, note:"Fits your car. Rent the host's cable for ₹" + CABLE_RENT + "." + slower };
+    return { ok:true, kw:k, needCable:true, note:"Fits, but bring your own Type 2 cable." + slower };
+  }
+  if (c.kind === "socket" || c.socket2w) return { ok:true, kw:v.ac, note:"Fits. Plug your own charger into the 3-pin socket." };
+  return { ok:false, kw:0, note:"No 3-pin socket here, so your " + TYPE_LABEL[v.type].toLowerCase() + " can't charge." };
+}
+const priceFor = (c, v) => (v.type !== "car" && c.price2w) ? c.price2w : c.price;
+const peakAt = (c, h) => c.peak && h >= 18 && h < 22;
+const hourPrice = (c, v, h) => Math.round(priceFor(c, v) * (peakAt(c, h) ? 1.2 : 1));
+function plan(c, v, from, to){
+  const cp = compat(c, v); if (!cp.ok) return null;
+  const kwh = Math.max(0, v.kwh * (to - from) / 100), hrs = kwh / (cp.kw * 0.9);
+  const book = Math.min(8, Math.max(1, Math.ceil(hrs - 0.05)));
+  return { kwh, hrs, book, cost:priceFor(c, v) * book, km:Math.round(kwh * KM_PER_KWH[v.type]), cp };
+}
+function targetFor(){ const p = pct(), t = S.prefs.target; return t > p ? t : Math.min(100, Math.ceil((p + 10) / 10) * 10); }
+
+/* ---------- Slots ---------- */
+function hash(str){ let h = 2166136261; for (let i = 0; i < str.length; i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function othersTaken(c, key){
+  const set = new Set(), span = c.close - c.open;
+  if (c.mine || span <= 2) return set;
+  let r = hash(c.id + key);
+  for (let i = 0; i < (span >= 10 ? 3 : 2); i++){ r = (Math.imul(r, 1103515245) + 12345) >>> 0; set.add(c.open + ((r >>> 8) % span)); }
+  return set;
+}
+function mineTaken(c, key){
+  const set = new Set();
+  for (const b of S.bookings) if (b.kind === "charge" && !b.ended && b.chargerId === c.id && b.date === key) for (let h = b.start; h < b.start + b.dur; h++) set.add(h);
+  return set;
+}
+function slotInfo(c, day, dur){
+  const d = dayDate(day); if (!daysOf(c).includes(d.getDay())) return null;
+  const key = dateKey(d), others = othersTaken(c, key), mine = mineTaken(c, key);
+  const earliest = day === 0 ? Math.floor(nowH()) : 0, out = [];
+  for (let h = Math.max(c.open, earliest); h < c.close; h++){
+    const state = mine.has(h) ? "mine" : others.has(h) ? "taken" : "free";
+    let fits = state === "free" && h + dur <= c.close;
+    for (let k = h; fits && k < h + dur; k++) if (others.has(k) || mine.has(k)) fits = false;
+    out.push({ h, state, fits, now:day === 0 && h === Math.floor(nowH()) });
+  }
+  return out;
+}
+function nextSlots(c, dur, n){
+  const out = [];
+  for (const day of [0, 1]){ const s = slotInfo(c, day, dur); if (!s) continue; for (const x of s) if (x.fits){ out.push({ day, h:x.h, now:x.now }); if (out.length >= n) return out; } }
+  return out;
+}
+const slotName = s => s.now ? "Now" : (s.day ? "Tomorrow " : "") + hLabel(s.h);
+const waitHours = s => s.day * 24 + s.h - nowH();
+
+/* =========================================================
+   6. THE MAP (hand-drawn sketch of Ahmedabad)
+   ========================================================= */
+const LAT0 = 23.15, LNG0 = 72.42, KX = 102.4, KY = 110.8;
+const EXT = { w:(72.68 - LNG0) * KX, h:(LAT0 - 22.93) * KY };
+const proj = (lat, lng) => [(lng - LNG0) * KX, (LAT0 - lat) * KY];
+const f3 = n => n.toFixed(3);
+const RIVER = [[23.17,72.633],[23.14,72.622],[23.12,72.613],[23.10,72.606],[23.08,72.597],[23.065,72.588],[23.05,72.582],[23.035,72.579],[23.02,72.577],[23.005,72.572],[22.99,72.563],[22.97,72.553],[22.94,72.546],[22.91,72.540]];
+const ROADS_MAJOR = [
+  [[22.950,72.492],[22.985,72.500],[23.010,72.505],[23.030,72.508],[23.050,72.513],[23.075,72.522],[23.100,72.535],[23.125,72.552],[23.160,72.568]],
+  [[22.940,72.585],[22.980,72.612],[23.020,72.640],[23.060,72.660],[23.110,72.672]]
+];
+const ROADS = [
+  [[23.072,72.582],[23.060,72.577],[23.045,72.573],[23.030,72.570],[23.015,72.567],[23.000,72.561],[22.985,72.555]],
+  [[23.074,72.572],[23.066,72.555],[23.056,72.540],[23.045,72.533],[23.030,72.531],[23.016,72.531],[23.005,72.543],[22.997,72.558]],
+  [[23.046,72.561],[23.034,72.560],[23.021,72.560]],
+  [[23.034,72.462],[23.034,72.485],[23.032,72.507]],
+  [[23.058,72.466],[23.057,72.502],[23.055,72.530],[23.050,72.548],[23.046,72.566]],
+  [[23.030,72.596],[23.012,72.599],[22.996,72.606],[22.972,72.609]],
+  [[23.012,72.507],[23.010,72.530],[23.012,72.548],[23.012,72.567]],
+  [[23.100,72.535],[23.099,72.560],[23.097,72.592]],
+  [[23.066,72.594],[23.046,72.589],[23.028,72.592],[23.008,72.589]],
+  [[23.120,72.585],[23.098,72.586],[23.075,72.582]]
+];
+const BRIDGES = [23.064, 23.043, 23.035, 23.028, 23.022, 23.004];
+const PARKS = [[23.0780,72.4930,0.75],[23.0050,72.6010,0.75],[23.0385,72.5290,0.38]];
+const LAKES = [[23.0065,72.6010,0.42],[23.0385,72.5290,0.17],[22.9830,72.5950,0.6]];
+const LABELS = [
+  ["Bopal",23.0255,72.4700], ["Thaltej",23.0650,72.5040], ["Vastrapur",23.0515,72.5300],
+  ["Satellite",23.0300,72.5150], ["Prahlad Nagar",22.9985,72.5080], ["Navrangpura",23.0500,72.5665],
+  ["Naranpura",23.0640,72.5560], ["Gota",23.1110,72.5330], ["Chandkheda",23.1090,72.5790],
+  ["Old City",23.0300,72.5960], ["Maninagar",22.9880,72.6080], ["Paldi",23.0010,72.5600],
+  ["Vejalpur",22.9900,72.5390], ["Science City",23.0790,72.4930], ["Airport",23.0900,72.6300]
+];
+function riverLngAt(lat){ for (let i = 0; i < RIVER.length - 1; i++){ const a = RIVER[i], b = RIVER[i+1]; if (lat <= a[0] && lat >= b[0]) return a[1] + (b[1] - a[1]) * (a[0] - lat) / (a[0] - b[0]); } return 72.58; }
+function smoothPath(pts){
+  const p = pts.map(q => proj(q[0], q[1]));
+  let d = "M" + f3(p[0][0]) + " " + f3(p[0][1]);
+  for (let i = 0; i < p.length - 1; i++){
+    const p0 = p[i-1] || p[i], p1 = p[i], p2 = p[i+1], p3 = p[i+2] || p2;
+    d += " C" + f3(p1[0] + (p2[0]-p0[0])/6) + " " + f3(p1[1] + (p2[1]-p0[1])/6) + " " + f3(p2[0] - (p3[0]-p1[0])/6) + " " + f3(p2[1] - (p3[1]-p1[1])/6) + " " + f3(p2[0]) + " " + f3(p2[1]);
+  }
+  return d;
+}
+const M = { el:null, svg:null, ov:null, W:0, H:0, cx:EXT.w/2, cy:EXT.h/2, s:20, items:[], fitted:false, anim:0, raf:0, you:null };
+const clampS = s => Math.min(140, Math.max(5, s));
+function clampView(){ M.cx = Math.min(EXT.w, Math.max(0, M.cx)); M.cy = Math.min(EXT.h, Math.max(0, M.cy)); }
+function mk(tag, cls, text){ const el = document.createElement(tag); el.className = cls; el.textContent = text; return el; }
+function addItem(el, lat, lng, extra){ const [x, y] = proj(lat, lng); const it = Object.assign({ el, x, y }, extra); M.items.push(it); M.ov.appendChild(el); return it; }
+function buildBase(){
+  let h = '<rect class="m-ground" x="-80" y="-80" width="' + (EXT.w + 160) + '" height="' + (EXT.h + 160) + '"/>';
+  for (const [lat, lng, r] of PARKS){ const [x, y] = proj(lat, lng); h += '<circle class="m-park" cx="' + f3(x) + '" cy="' + f3(y) + '" r="' + r + '"/>'; }
+  h += '<path class="m-river" d="' + smoothPath(RIVER) + '"/>';
+  for (const [lat, lng, r] of LAKES){ const [x, y] = proj(lat, lng); h += '<circle class="m-water" cx="' + f3(x) + '" cy="' + f3(y) + '" r="' + r + '"/>'; }
+  const [ex, ey] = proj(23.035, 72.565);
+  h += '<ellipse class="m-ring" cx="' + f3(ex) + '" cy="' + f3(ey) + '" rx="' + f3(0.105 * KX) + '" ry="' + f3(0.10 * KY) + '"/>';
+  for (const r of ROADS) h += '<path class="m-road" d="' + smoothPath(r) + '"/>';
+  for (const lat of BRIDGES){ const l = riverLngAt(lat); h += '<path class="m-road" d="' + smoothPath([[lat, l - 0.007],[lat, l + 0.007]]) + '"/>'; }
+  for (const r of ROADS_MAJOR) h += '<path class="m-major" d="' + smoothPath(r) + '"/>';
+  h += '<path class="m-runway" d="' + smoothPath([[23.0628,72.6209],[23.0832,72.6471]]) + '"/>';
+  M.svg.innerHTML = h;
+  for (const [name, lat, lng] of LABELS) addItem(mk("span", "mlabel", name), lat, lng, { kind:"label" });
+  addItem(mk("span", "mlabel river", "Sabarmati"), 23.0725, 72.5928, { kind:"label", rot:-61 });
+  addItem(mk("span", "mlabel road", "SG Highway"), 23.0880, 72.5287, { kind:"label", rot:-64 });
+  M.you = addItem(mk("div", "you", ""), place().lat, place().lng, { kind:"you" });
+}
+function moveYou(){ const [x, y] = proj(place().lat, place().lng); M.you.x = x; M.you.y = y; applyView(); }
+const onMap = c => !c.highway && !c.paused;
+function buildPins(){
+  M.items = M.items.filter(it => { if (it.kind === "pin"){ it.el.remove(); return false; } return true; });
+  for (const c of allChargers().filter(onMap)){
+    const b = document.createElement("button"); b.type = "button"; b.className = "pin";
+    b.addEventListener("click", () => { if (performance.now() - lastDrag < 300) return; if (wide()) openQB(c.id); else selectOnMap(c.id); });
+    addItem(b, c.lat, c.lng, { kind:"pin", id:c.id });
+  }
+  refreshPins();
+}
+function refreshPins(){
+  const v = veh();
+  for (const it of M.items){
+    if (it.kind !== "pin") continue;
+    const c = byId(it.id); if (!c) continue;
+    const st = status(c), fits = compat(c, v).ok, sel = S.selected === c.id;
+    it.el.innerHTML = (fits ? boltFill : "") + rupee(priceFor(c, v));
+    it.el.classList.toggle("open", st.open && fits); it.el.classList.toggle("nofit", !fits); it.el.classList.toggle("sel", sel);
+    it.el.hidden = !visible(c);
+    it.el.style.zIndex = sel ? 7 : (st.open && fits) ? 3 : 2;
+    it.el.setAttribute("aria-label", c.host + ", " + rupee(priceFor(c, v)) + " per hour, " + (fits ? (st.open ? "open now" : "closed now") : "does not fit your vehicle"));
+  }
+  applyView();
+}
+function hoverPin(id){ for (const it of M.items) if (it.kind === "pin") it.el.classList.toggle("hov", it.id === id); }
+function measure(){ const r = M.el.getBoundingClientRect(); M.W = r.width; M.H = r.height; }
+function applyView(){
+  if (!M.W || !M.H) return;
+  const vw = M.W / M.s, vh = M.H / M.s, vx = M.cx - vw / 2, vy = M.cy - vh / 2;
+  M.svg.setAttribute("viewBox", f3(vx) + " " + f3(vy) + " " + f3(vw) + " " + f3(vh));
+  for (const it of M.items){
+    const x = (it.x - vx) * M.s, y = (it.y - vy) * M.s;
+    let t = "translate(" + x.toFixed(1) + "px," + y.toFixed(1) + "px) translate(-50%,-50%)";
+    if (it.rot) t += " rotate(" + it.rot + "deg)";
+    if (it.kind === "pin" && it.el.classList.contains("sel")) t += " scale(1.15)";
+    it.el.style.transform = t;
+  }
+}
+function schedule(){ if (!M.raf) M.raf = requestAnimationFrame(() => { M.raf = 0; applyView(); }); }
+function fitAll(animate){
+  measure(); if (!M.W || !M.H) return;
+  const pts = allChargers().filter(visible).map(c => proj(c.lat, c.lng)); pts.push(proj(place().lat, place().lng));
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const [x, y] of pts){ x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
+  const pl = 34, pr = 64, pt = wide() ? 30 : 64, pb = wide() ? 40 : 150;
+  const s = clampS(Math.min((M.W - pl - pr) / Math.max(x1 - x0, 1.5), (M.H - pt - pb) / Math.max(y1 - y0, 1.5)));
+  const cx = (x0 + x1) / 2 + (pr - pl) / (2 * s), cy = (y0 + y1) / 2 + (pb - pt) / (2 * s);
+  if (animate) flyTo(cx, cy, s); else { M.cx = cx; M.cy = cy; M.s = s; clampView(); applyView(); }
+}
+const reduceMotion = () => window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+function flyTo(cx, cy, s){
+  cancelAnimationFrame(M.anim);
+  if (reduceMotion()){ M.cx = cx; M.cy = cy; M.s = s; clampView(); applyView(); return; }
+  const a = { cx:M.cx, cy:M.cy, s:M.s }, t0 = performance.now(), T = 420;
+  const step = t => { let k = Math.min(1, (t - t0) / T); k = 1 - Math.pow(1 - k, 3);
+    M.cx = a.cx + (cx - a.cx) * k; M.cy = a.cy + (cy - a.cy) * k; M.s = a.s * Math.pow(s / a.s, k); clampView(); applyView();
+    if (k < 1) M.anim = requestAnimationFrame(step); };
+  M.anim = requestAnimationFrame(step);
+}
+function zoomAt(f, px, py){ const wx = M.cx + (px - M.W / 2) / M.s, wy = M.cy + (py - M.H / 2) / M.s, ns = clampS(M.s * f); M.cx = wx - (px - M.W / 2) / ns; M.cy = wy - (py - M.H / 2) / ns; M.s = ns; clampView(); schedule(); }
+function centerOn(id){ const c = byId(id); if (!c || !onMap(c)) return; measure(); const [x, y] = proj(c.lat, c.lng); const s = Math.max(M.s, 24); if (wide()) flyTo(x + 220 / s, y, s); else flyTo(x, y + 70 / s, s); }
+const ptrs = new Map(); let drag = null, pinch = null, lastDrag = 0;
+function initMapInput(){
+  M.el.addEventListener("pointerdown", e => {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    cancelAnimationFrame(M.anim); ptrs.set(e.pointerId, { x:e.clientX, y:e.clientY });
+    if (ptrs.size === 1) drag = { x:e.clientX, y:e.clientY, cx:M.cx, cy:M.cy, moved:false };
+    else if (ptrs.size === 2){ const [a, b] = [...ptrs.values()], r = M.el.getBoundingClientRect(); pinch = { d:Math.hypot(a.x - b.x, a.y - b.y) || 1, s:M.s, cx:M.cx, cy:M.cy, mx:(a.x + b.x) / 2 - r.left, my:(a.y + b.y) / 2 - r.top }; if (drag) drag.moved = true; }
+  });
+  window.addEventListener("pointermove", e => {
+    if (!ptrs.has(e.pointerId)) return; ptrs.set(e.pointerId, { x:e.clientX, y:e.clientY });
+    if (ptrs.size === 1 && drag){ const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+      if (!drag.moved && Math.hypot(dx, dy) > 5){ drag.moved = true; M.el.classList.add("dragging"); }
+      if (drag.moved){ M.cx = drag.cx - dx / M.s; M.cy = drag.cy - dy / M.s; clampView(); schedule(); } }
+    else if (ptrs.size === 2 && pinch){ const [a, b] = [...ptrs.values()], r = M.el.getBoundingClientRect();
+      const ns = clampS(pinch.s * Math.hypot(a.x - b.x, a.y - b.y) / pinch.d), mx = (a.x + b.x) / 2 - r.left, my = (a.y + b.y) / 2 - r.top;
+      const wx = pinch.cx + (pinch.mx - M.W / 2) / pinch.s, wy = pinch.cy + (pinch.my - M.H / 2) / pinch.s;
+      M.s = ns; M.cx = wx - (mx - M.W / 2) / ns; M.cy = wy - (my - M.H / 2) / ns; clampView(); schedule(); }
+  });
+  const end = e => { if (!ptrs.has(e.pointerId)) return; ptrs.delete(e.pointerId);
+    if ((drag && drag.moved) || pinch) lastDrag = performance.now();
+    if (ptrs.size === 0){ drag = null; pinch = null; M.el.classList.remove("dragging"); }
+    else if (ptrs.size === 1){ const [p] = [...ptrs.values()]; drag = { x:p.x, y:p.y, cx:M.cx, cy:M.cy, moved:true }; pinch = null; } };
+  window.addEventListener("pointerup", end); window.addEventListener("pointercancel", end);
+  M.el.addEventListener("wheel", e => { e.preventDefault(); const r = M.el.getBoundingClientRect(); zoomAt(Math.exp(-e.deltaY * 0.0018), e.clientX - r.left, e.clientY - r.top); }, { passive:false });
+  new ResizeObserver(() => { measure(); if (!M.W || !M.H) return; if (!M.fitted){ M.fitted = true; fitAll(false); } else applyView(); }).observe(M.el);
+}
+
+/* =========================================================
+   7. TOP BAR: location and vehicle, one tap each
+   ========================================================= */
+const chkSvg = '<svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + IC.check + '</svg>';
+function renderTop(){
+  const P = place(), v = veh(), p = pct();
+  $("#placebtn").innerHTML = '<small>Charging near</small><b>' + esc(P.short) + ', ' + esc(P.sub) + ico("down", 2.4) + '</b>';
+  $("#vchip").innerHTML = batteryMini(p) + '<span class="vc-t"><b>' + esc(v.model) + '</b><small>' + p + '% battery</small></span><svg class="dd" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + IC.down + '</svg>';
+}
+function openPlaces(){
+  showSheet(sheetHead("Where are you charging?", "Tap to switch") +
+    '<div class="sh-body pad"><div class="picklist">' + Object.keys(PLACES).map(k => { const P = PLACES[k];
+      return '<button type="button" class="pick" data-act="setplace" data-v="' + k + '" aria-pressed="' + (S.prefs.place === k) + '"><span class="ic">' + ico(P.icon) + '</span><span class="who"><b>' + P.name + '</b><span>' + esc(P.short + ", " + P.sub) + '</span></span>' + (S.prefs.place === k ? chkSvg : '') + '</button>'; }).join("") +
+    '</div><p class="fine">In the real app, "Current location" uses your phone’s GPS.</p></div>', "places", "Choose location");
+}
+function openVehicle(){
+  const p = pct();
+  showSheet(sheetHead("Your vehicle", "Tap a vehicle or a battery level") +
+    '<div class="sh-body pad">' +
+      '<div class="picklist">' + S.garage.list.map((g, i) => { const v = VEHICLES.find(x => x.id === g.id); if (!v) return "";
+        const on = i === S.garage.active;
+        return '<button type="button" class="pick" data-act="setveh" data-v="' + i + '" aria-pressed="' + on + '"><span class="ic">' + ico(v.type === "car" ? "car" : "scooter") + '</span><span class="who"><b>' + esc(v.brand + " " + v.model) + '</b><span>' + esc(v.variant) + ' · ' + g.pct + '% battery</span></span>' + (on ? chkSvg : '') + '</button>'; }).join("") +
+        '<button type="button" class="pick" data-act="addveh"><span class="ic">' + ico("plus") + '</span><span class="who"><b>Add a vehicle</b><span>Car, scooter or auto</span></span></button>' +
+      '</div>' +
+      '<div class="grp"><span class="lbl">Battery right now</span><div class="pctgrid">' + [10,20,30,40,50,60,70,80,90,100].map(n => '<button type="button" data-act="setpct" data-v="' + n + '" aria-pressed="' + (Math.round(p / 10) * 10 === n) + '">' + n + '%</button>').join("") + '</div></div>' +
+    '</div>', "vehicle", "Change vehicle");
+}
+function openAddVehicle(type){
+  type = type || "car";
+  const list = VEHICLES.filter(x => x.type === type), brands = [...new Set(list.map(x => x.brand))];
+  showSheet(sheetHead("Add a vehicle", "Tap your model to add it") +
+    '<div class="sh-body pad">' +
+      '<div class="seg" role="group" aria-label="Vehicle type">' + ["car","scooter","auto"].map(t => '<button type="button" data-act="addtype" data-v="' + t + '" aria-pressed="' + (type === t) + '">' + TYPE_LABEL[t] + '</button>').join("") + '</div>' +
+      brands.map(b => '<div class="grp"><span class="lbl">' + esc(b) + '</span><div class="models">' + list.filter(x => x.brand === b).map(x => '<button type="button" class="model" data-act="pickmodel" data-v="' + x.id + '"><b>' + esc(x.model) + '</b><span>' + esc(x.variant) + ' · ' + fmtKw(x.ac) + (x.type === "car" ? ' AC' : ' charger') + '</span></button>').join("") + '</div></div>').join("") +
+      '<p class="fine">' + (type === "car" ? "Battery sizes and AC limits are carmaker figures. Check your manual for your variant." : "Scooters and autos plug their own charger into a 3-pin socket. Times assume a typical charger.") + '</p>' +
+    '</div>', "addveh", "Add a vehicle");
+}
+
+/* =========================================================
+   8. HOME
+   ========================================================= */
+function visible(c){
+  if (!onMap(c)) return false;
+  const v = veh();
+  if (S.filters.has("fits") && !compat(c, v).ok) return false;
+  if (S.filters.has("open") && !status(c).open) return false;
+  if (S.filters.has("cable") && !c.cable) return false;
+  if (S.filters.has("fast") && kwOf(c) < 7) return false;
+  if (S.filters.has("cheap") && priceFor(c, v) >= 100) return false;
+  return true;
+}
+function bestCharger(){
+  const v = veh(), to = targetFor(); let best = null;
+  for (const c of allChargers()){
+    if (!onMap(c) || c.mine || !compat(c, v).ok) continue;
+    const p = plan(c, v, pct(), to), dur = Math.min(p.book, c.close - c.open), s = nextSlots(c, dur, 1)[0]; if (!s) continue;
+    const score = Math.max(0, waitHours(s)) * 1.6 + distKm(c.lat, c.lng);
+    if (!best || score < best.score) best = { c, p, s, score };
+  }
+  return best;
+}
+function bkStart(b){ const d = new Date(b.date + "T00:00"); d.setHours(b.start); return d.getTime(); }
+const upcomingCharge = () => S.bookings.filter(b => b.kind === "charge" && !b.ended && bkEnd(b) > Date.now()).sort((a, b) => bkStart(a) - bkStart(b))[0];
+const lastSession = () => S.bookings.filter(b => b.kind === "charge" && b.ended && byId(b.chargerId)).sort((a, b) => b.made - a.made)[0];
+function startsIn(b){
+  const ms = bkStart(b) - Date.now(); if (ms <= 0) return "Your slot has started";
+  const m = Math.round(ms / 60000); return "Starts in " + (m < 60 ? m + " min" : Math.floor(m / 60) + " h " + (m % 60) + " min");
+}
+function renderHome(){
+  const v = veh(), p = pct(), up = upcomingCharge(), last = lastSession(), best = bestCharger(), to = targetFor();
+  const rescue = S.track && S.track.stage < 5;
+  let h = '<div class="scroll" id="homescroll"><div class="pad stack">';
+  if (rescue) h += '<button type="button" class="card active" data-act="go" data-v="track" style="text-align:left; color:var(--text); border-color:rgba(255,93,79,.5); background:var(--red-soft)"><div class="active-top"><span class="ic" style="background:var(--red); color:var(--red-ink)">' + ico("sos") + '</span><div><b>Rescue van on the way</b><span class="fine">Tap to track it</span></div></div></button>';
+  if (up){ const c = byId(up.chargerId);
+    h += '<div class="card active"><div class="active-top"><span class="ic">' + ico("bolt") + '</span><div style="flex:1;min-width:0"><b>' + esc(up.hostShort) + '’s charger is booked</b><span class="fine">' + startsIn(up) + ' · ' + hLabel(up.start) + ' to ' + hLabel(up.start + up.dur) + (c ? ' · ' + distText(c) : '') + '</span></div></div>' +
+      '<div class="two-btn"><a class="btn ghost small" href="' + dirUrl(c) + '" target="_blank" rel="noopener">' + ico("nav") + 'Directions</a><button type="button" class="btn small" data-act="startsess" data-v="' + esc(up.code) + '">' + ico("bolt") + 'Start charging</button></div></div>';
+  }
+  if (best){
+    const c = best.c, pl = best.p, dur = Math.min(pl.book, c.close - c.open), st = best.s, cost = priceFor(c, v) * dur;
+    const free = st.now ? '<span class="tag mint"><span class="dot"></span>Free now</span>' : '<span class="tag amber">Free from ' + slotName(st) + '</span>';
+    h += '<section class="hero" aria-label="Best charger for you">' +
+      '<div class="hero-top"><span class="tag lime">' + ico("bolt", 2.4) + 'Best for your ' + esc(v.model) + '</span>' + free + '</div>' +
+      '<div class="hero-host"><div class="av">' + esc(initials(c.host)) + '</div><div class="who"><b>' + esc(c.host) + '</b><span>' + esc(c.area) + ' · ' + distText(c) + ' · ★ ' + c.rating + '</span></div><div class="price">' + rupee(priceFor(c, v)) + '<small>/hr</small></div></div>' +
+      batteryBar(p, to) +
+      '<div class="stats3"><div class="stat"><b>' + fmtDur(pl.hrs) + '</b><span>to ' + to + '%</span></div><div class="stat"><b>+' + pl.km + ' km</b><span>range</span></div><div class="stat"><b>' + rupee(cost) + '</b><span>' + dur + ' hr' + (dur > 1 ? 's' : '') + '</span></div></div>' +
+      '<div class="to-row"><span>Charge to</span><div class="chips">' + [50,80,90,100].map(n => '<button type="button" class="chip" data-act="target" data-v="' + n + '" aria-pressed="' + (to === n) + '"' + (n <= p ? ' disabled' : '') + '>' + n + '%</button>').join("") + '</div></div>' +
+      '<button type="button" class="btn block" data-act="qb" data-id="' + c.id + '">' + ico("bolt") + (st.now ? 'Book now' : 'Book for ' + slotName(st)) + ' · ' + rupee(cost) + '</button>' +
+    '</section>';
+  } else {
+    h += '<div class="card empty"><p><b>No free charger fits your ' + esc(v.model) + ' right now.</b></p><p class="fine">Try a lower charge target, or call a rescue van if you are stuck.</p></div>';
+  }
+  if (last){ const c = byId(last.chargerId), lp = plan(c, v, p, Math.max(last.to || to, p + 5));
+    h += '<button type="button" class="card rebook" data-act="qb" data-id="' + c.id + '" data-v="' + (last.to || to) + '" style="text-align:left"><span class="ic">' + ico("rebook") + '</span><span class="who"><b>Rebook ' + esc(last.hostShort) + '</b><span>' + esc(c.area) + ' · last time ' + hLabel(last.start) + ' to ' + hLabel(last.start + last.dur) + (lp ? ' · ' + rupee(priceFor(c, v) * Math.min(lp.book, c.close - c.open)) : '') + '</span></span><span class="pbtn">Rebook</span></button>';
+  }
+  h += '<div class="tiles">' + tile("t-map", "map", "Map", "tab", "map") + tile("t-sos", "sos", "SOS", "rescue", "") + tile("t-hw", "road", "Highway", "go", "highway") + tile("t-rent", "plug", "Rent cable", "rent", "") + '</div>';
+  h += '<div class="sec-h"><h2>Nearby chargers</h2><button type="button" class="link see-map" data-act="tab" data-v="map">See map</button></div>' +
+    '<div class="chips" role="group" aria-label="Filters" style="margin-top:-10px">' + filterChips() + '</div>';
+  const items = allChargers().filter(visible).map(c => ({ c, d:distKm(c.lat, c.lng) })).sort((a, b) => a.d - b.d);
+  h += items.length ? '<ul class="list" style="margin-top:-8px">' + items.map((x, i) => '<li>' + listCard(x.c, i) + '</li>').join("") + '</ul>' :
+    '<div class="card empty"><p>No chargers match these filters.</p><button type="button" class="btn ghost small" data-act="clearfilters">Clear filters</button></div>';
+  h += '<button type="button" class="earnban" data-act="tab" data-v="earn"><span class="ic">' + ico("rupee") + '</span><span style="flex:1"><b>Have a charger at home?</b><span>Hosts earn about ' + rupee(earnMonthly("t7", 120, 2)) + ' a month. See what you could make.</span></span>' + ico("chev") + '</button>';
+  h += '<p class="fine">Hosts, prices and services are sample data for this prototype.</p>';
+  h += '</div></div>';
+  const prev = $("#homescroll"), keep = prev ? prev.scrollTop : 0;
+  $("#v-home").innerHTML = h;
+  $("#homescroll").scrollTop = keep;
+}
+const tile = (cls, icon, label, act, v) => '<button type="button" class="tile ' + cls + '" data-act="' + act + '" data-v="' + v + '"><span class="ic">' + ico(icon, 1.9) + '</span>' + label + '</button>';
+function batteryBar(from, to){
+  const w = x => "calc(" + x + "% - " + (x / 100 * 6).toFixed(2) + "px)";
+  return '<div class="bbar" role="img" aria-label="Battery ' + from + ' to ' + to + ' percent"><span class="bb-now" style="width:' + w(from) + '"></span><span class="bb-add" style="left:calc(3px + ' + from + '% - ' + (from / 100 * 6).toFixed(2) + 'px); width:' + w(to - from) + '">' + (to - from >= 14 ? to + '%' : '') + '</span><span class="bb-lbl">' + from + '%</span></div>';
+}
+function filterChips(){
+  return [["fits","Fits my " + veh().model],["open","Open now"],["fast","7 kW+"],["cheap","Under ₹100"],["cable","Cable attached"]].map(([k, l]) => '<button type="button" class="chip" data-act="filter" data-v="' + k + '" aria-pressed="' + S.filters.has(k) + '">' + esc(l) + '</button>').join("");
+}
+function listCard(c, i, extraCls, act){
+  const v = veh(), st = status(c), cp = compat(c, v), to = targetFor();
+  let fit;
+  if (!cp.ok) fit = '<span class="fitl no">Doesn’t fit your ' + esc(v.model) + '</span>';
+  else { const p = plan(c, v, pct(), to); fit = '<span class="fitl">' + boltFill + fmtKw(cp.kw) + ' · ' + fmtDur(p.hrs) + ' to ' + to + '%</span>'; }
+  const meta = c.highway ? esc(c.road) + ' · ' + c.from + ' km' : esc(c.area) + ' · ' + distText(c) + ' · ★ ' + (c.rating || "New");
+  return '<div class="lc' + (cp.ok ? '' : ' dim') + (extraCls ? ' ' + extraCls : '') + '" style="--i:' + (i || 0) + '" data-act="' + (act || "qb") + '" data-id="' + c.id + '" role="button" tabindex="0" aria-label="' + esc(c.host) + ', ' + rupee(priceFor(c, v)) + ' per hour">' +
+    '<div class="av">' + esc(initials(c.host)) + '</div>' +
+    '<div class="who"><b>' + esc(c.host) + '</b><span class="meta">' + meta + '</span><span class="st' + (st.open ? ' open' : '') + '"><span class="dot"></span>' + esc(st.text) + '</span>' + fit + '</div>' +
+    '<div class="side"><span class="price">' + rupee(priceFor(c, v)) + '<small>/hr</small></span>' + (cp.ok ? '<span class="pbtn">Book</span>' : '') + '</div></div>';
+}
+const dirUrl = c => c && !c.highway ? "https://www.google.com/maps/dir/?api=1&destination=" + c.lat + "," + c.lng : "https://www.google.com/maps";
+
+/* =========================================================
+   9. SHEETS: shared bottom sheet
+   ========================================================= */
+const sheet = () => $("#sheet");
+let sheetMode = null;
+const sheetHead = (title, sub) => '<div class="grab" aria-hidden="true"></div><div class="sh-head pad"><div class="who"><h2>' + title + '</h2>' + (sub ? '<div class="sub">' + sub + '</div>' : '') + '</div><button type="button" class="iconbtn" data-act="close" aria-label="Close">' + ico("close", 2.2) + '</button></div>';
+function showSheet(html, mode, label){
+  if (sheetMode === "qb" && mode !== "qb"){ S.selected = null; refreshPins(); }
+  sheetMode = mode; sheet().innerHTML = html; sheet().setAttribute("aria-label", label);
+  $("#scrim").classList.add("open"); sheet().classList.add("open");
+  setTimeout(() => { const b = sheet().querySelector('[data-act="close"]'); if (b && sheet().classList.contains("open")) b.focus({ preventScroll:true }); }, 60);
+}
+function closeSheet(){
+  if (!sheet().classList.contains("open")) return;
+  if (sheet().contains(document.activeElement)) document.activeElement.blur();
+  sheet().classList.remove("open"); $("#scrim").classList.remove("open");
+  if (sheetMode === "qb"){ S.selected = null; refreshPins(); }
+  sheetMode = null;
+}
+
+/* ---------- Quick book: the main charger sheet ---------- */
+function openQB(id, to){
+  const c = byId(id); if (!c) return;
+  S.selected = id; refreshPins();
+  if (wide()) centerOn(id);
+  S.qb = { id, to:to && +to > pct() ? +to : targetFor(), start:null, pick:false, day:0, cable:!!compat(c, veh()).rentable, pay:S.prefs.pay };
+  showSheet('', "qb", "Book " + c.host);
+  renderQB();
+}
+function qbDur(c, v){ const p = plan(c, v, pct(), S.qb.to); return p ? Math.min(p.book, c.close - c.open) : 1; }
+function renderQB(){
+  const q = S.qb, c = byId(q.id), v = veh(); if (!c) return;
+  if (q.to <= pct()) q.to = targetFor();
+  const cp = compat(c, v), st = status(c), p = pct();
+  const body = sheet().querySelector(".sh-body"), keep = body ? body.scrollTop : 0;
+  let h = '<div class="grab" aria-hidden="true"></div>' +
+    '<div class="sh-head pad"><div class="av">' + esc(initials(c.host)) + '</div><div class="who"><h2>' + esc(c.host) + '</h2><div class="sub">' + esc(c.area) + ' · ' + distText(c) + ' · ★ ' + (c.rating || "New") + '</div></div><button type="button" class="iconbtn" data-act="close" aria-label="Close">' + ico("close", 2.2) + '</button></div>' +
+    '<div class="sh-body pad">';
+  h += '<div class="fitbox' + (cp.ok ? '' : ' no') + '">' + ico(cp.ok ? "check" : "close", 2.6) + '<span><b>' + esc(v.brand + " " + v.model) + ' · ' + p + '%</b><br><span class="muted">' + esc(cp.note) + '</span></span><button type="button" class="link vlink" data-act="vehicle">Change</button></div>';
+  let foot = "";
+  if (cp.ok && !c.mine){
+    const want = qbDur(c, v); let dur = want, opts = nextSlots(c, dur, 3);
+    while (!opts.length && dur > 1){ dur--; opts = nextSlots(c, dur, 3); }
+    const reach = dur < want ? Math.min(q.to, Math.floor(p + cp.kw * 0.9 * dur / v.kwh * 100)) : q.to, pl = plan(c, v, p, reach);
+    q.dur = dur; q.reach = reach;
+    if (!q.start || !(slotInfo(c, q.start.day, dur) || []).some(s => s.h === q.start.h && s.fits)) q.start = opts[0] || null;
+    const total = q.start ? bookTotal(c, v, q.start.h, dur, q.cable) : 0;
+    h += '<div style="display:flex;justify-content:space-between;align-items:flex-end;gap:10px"><div><div class="price" style="text-align:left;font-size:26px">' + rupee(priceFor(c, v)) + '<small> per hour</small></div><span class="fine">' + esc(st.text) + (c.peak ? ' · ▲ 20% more 6 to 10 PM' : '') + '</span></div><span class="tag">' + chargerLabel(c) + '</span></div>';
+    h += batteryBar(p, reach);
+    if (dur < want) h += '<div class="fitbox" style="border-color:rgba(255,181,71,.4)">' + ico("cal", 2) + '<span>Only ' + dur + '-hour slots are free here, so you\u2019ll reach about ' + reach + '%. Pick another charger for a full ' + q.to + '%.</span></div>';
+    h += '<div class="grp"><span class="lbl">Charge to</span><div class="chips">' + [50,80,90,100].map(n => '<button type="button" class="chip" data-act="qbto" data-v="' + n + '" aria-pressed="' + (q.to === n) + '"' + (n <= p ? ' disabled' : '') + '>' + n + '%</button>').join("") + '</div></div>';
+    h += '<div class="stats3"><div class="stat"><b>' + fmtDur(pl.hrs) + '</b><span>at ' + fmtKw(cp.kw) + '</span></div><div class="stat"><b>+' + pl.km + ' km</b><span>range</span></div><div class="stat"><b>' + dur + ' hr' + (dur > 1 ? 's' : '') + '</b><span>' + (pl.hrs > dur + 0.05 ? 'max you can book' : 'to book') + '</span></div></div>';
+    h += '<div class="grp"><span class="lbl">Start</span><div class="chips">' + opts.map(s => '<button type="button" class="chip" data-act="qbslot" data-v="' + s.day + ':' + s.h + '" aria-pressed="' + (!!q.start && !q.pick && q.start.day === s.day && q.start.h === s.h) + '">' + slotName(s) + '</button>').join("") +
+      '<button type="button" class="chip" data-act="qbpick" aria-pressed="' + q.pick + '">Other time</button></div>';
+    if (q.pick){
+      const slots = slotInfo(c, q.day, dur);
+      h += '<div class="seg" role="group" aria-label="Day">' + [0,1].map(d => '<button type="button" data-act="qbday" data-v="' + d + '" aria-pressed="' + (q.day === d) + '">' + (d ? 'Tomorrow' : 'Today') + '</button>').join("") + '</div>';
+      if (!slots) h += '<p class="fine">' + esc(hostShort(c)) + ' is closed on ' + DAY_LONG[dayDate(q.day).getDay()] + 's.</p>';
+      else if (!slots.some(s => s.fits)) h += '<p class="fine">No ' + dur + '-hour slot left ' + (q.day ? 'tomorrow' : 'today') + '.</p>';
+      else h += '<div class="slots">' + slots.map(s => { const first = q.start && q.start.day === q.day && q.start.h === s.h, inR = q.start && q.start.day === q.day && s.h > q.start.h && s.h < q.start.h + dur;
+        return '<button type="button" class="slot' + (s.state === "taken" ? ' taken' : '') + (inR ? ' inrange' : '') + (peakAt(c, s.h) ? ' peak' : '') + '" data-act="qbslot" data-v="' + q.day + ':' + s.h + '"' + (s.fits ? '' : ' disabled') + ' aria-pressed="' + !!first + '">' + (s.now ? 'Now' : s.state === "mine" ? 'Yours' : hLabel(s.h)) + '</button>'; }).join("") + '</div>';
+    }
+    h += '</div>';
+    if (v.type === "car" && c.kind !== "socket" && !c.cable){
+      h += c.cableRent ? '<label class="optrow" for="qb-cable"><span><span class="t">Add the host’s cable · ' + rupee(CABLE_RENT) + '</span><span class="fine">No cable is attached here</span></span><span class="switch" style="border:0;padding:0;background:none"><input type="checkbox" id="qb-cable"' + (q.cable ? ' checked' : '') + '></span></label>'
+        : '<div class="fitbox no">' + ico("plug", 2) + '<span>No cable here. Bring a Type 2 cable, or rent one from the home screen.</span></div>';
+    }
+    if (q.start){
+      h += '<div class="card" style="padding:12px 14px"><div class="row"><span>' + (q.start.day ? 'Tomorrow' : 'Today') + ', ' + (q.start.now ? 'now' : hLabel(q.start.h)) + ' to ' + hLabel(q.start.h + dur) + '</span><span>' + rupee(total - (q.cable ? CABLE_RENT : 0)) + '</span></div>' + (q.cable ? '<div class="row"><span>Cable rental</span><span>' + rupee(CABLE_RENT) + '</span></div>' : '') +
+        '<div class="row"><span>Pay with</span><span class="chips">' + [["upi","UPI"],["card","Card"],["wallet","Wallet"]].map(([k, l]) => '<button type="button" class="chip" style="padding:5px 10px" data-act="qbpay" data-v="' + k + '" aria-pressed="' + (q.pay === k) + '">' + l + '</button>').join("") + '</span></div>' +
+        '<div class="row total"><span>Total</span><span>' + rupee(total) + '</span></div><p class="fine" style="margin-top:6px">Stop early and you only pay for the hours you used. Demo, so no real payment.</p></div>';
+      foot = swipeHTML("Swipe to book · " + rupee(total), "") + '<div class="swipe-hint">Drag the arrow to the right to confirm</div>';
+    } else {
+      h += '<div class="fitbox no">' + ico("cal", 2) + '<span>No free slot in the next two days for this charge. Try a lower charge target.</span></div>';
+    }
+  } else if (c.mine){
+    foot = '<button type="button" class="btn ghost block" data-act="tab" data-v="earn">Manage in Earn</button>';
+  } else {
+    foot = '<button type="button" class="btn block" disabled>Doesn’t fit your ' + esc(v.model) + '</button>';
+  }
+  const ph = photos[c.id] || [];
+  h += '<details class="details"><summary>Charger details ' + ico("chev", 2.2) + '</summary><div>' +
+    (ph.length ? '<div class="photos">' + ph.map(u => '<img src="' + u + '" alt="Charger photo">').join("") + '</div>' : '') +
+    '<div class="specs"><div class="spec"><span>Charger</span><b>' + chargerLabel(c) + '</b></div><div class="spec"><span>Cable</span><b>' + (c.kind === "socket" ? "Not needed" : c.cable ? "Attached" : c.cableRent ? "Rent ₹" + CABLE_RENT : "Bring your own") + '</b></div>' +
+    '<div class="spec"><span>Scooters</span><b>' + ((c.kind === "socket" || c.socket2w) ? "3-pin socket" + (c.price2w ? ", " + rupee(c.price2w) + "/hr" : "") : "Not available") + '</b></div><div class="spec"><span>Hours</span><b>' + hoursText(c) + '</b></div></div>' +
+    (c.amen ? '<div class="chips">' + c.amen.map(a => '<span class="tag">' + esc(a) + '</span>').join("") + '</div>' : '') +
+    '<div><b>' + esc(c.highway ? c.road + ", " + c.area : c.address + ", " + c.area) + '</b><p class="fine">The exact address is shared after you book.</p></div>' +
+    (c.note ? '<blockquote class="note">“' + esc(c.note) + '”<span>' + esc(hostShort(c)) + '</span></blockquote>' : '') +
+    '</div></details>';
+  h += '</div>' + (foot ? '<div class="sh-foot pad">' + foot + '</div>' : '');
+  sheet().innerHTML = h;
+  const nb = sheet().querySelector(".sh-body"); if (nb) nb.scrollTop = keep;
+  const cb = $("#qb-cable"); if (cb) cb.addEventListener("change", () => { S.qb.cable = cb.checked; renderQB(); });
+  const sw = sheet().querySelector(".swipe"); if (sw) bindSwipe(sw, confirmQB);
+}
+function bookTotal(c, v, start, dur, cable){ let t = 0; for (let h = start; h < start + dur; h++) t += hourPrice(c, v, h); return t + (cable ? CABLE_RENT : 0); }
+function swipeHTML(label, cls){
+  return '<div class="swipe ' + cls + '"><div class="swipe-fill"></div><button type="button" class="swipe-knob" aria-label="' + esc(label) + '. Press Enter to confirm.">' + ico("arrow", 2.4) + '</button><span class="swipe-text">' + esc(label) + '</span></div>';
+}
+function bindSwipe(el, onDone){
+  const knob = el.querySelector(".swipe-knob"); let st = null, fired = false;
+  const max = () => el.clientWidth - knob.offsetWidth - 12;
+  const finish = () => { if (fired) return; fired = true; knob.style.transform = "translateX(" + max() + "px)"; el.style.setProperty("--p", 1); setTimeout(onDone, 160); };
+  knob.addEventListener("pointerdown", e => { st = { x:e.clientX, dx:0, id:e.pointerId }; try { knob.setPointerCapture(e.pointerId); } catch(err){} el.classList.add("drag"); });
+  knob.addEventListener("pointermove", e => { if (!st || e.pointerId !== st.id) return; st.dx = Math.max(0, Math.min(max(), e.clientX - st.x)); knob.style.transform = "translateX(" + st.dx + "px)"; el.style.setProperty("--p", (st.dx / max()).toFixed(3)); });
+  const end = e => { if (!st || e.pointerId !== st.id) return; el.classList.remove("drag"); if (st.dx > max() * 0.8) finish(); else { knob.style.transform = ""; el.style.setProperty("--p", 0); } st = null; };
+  knob.addEventListener("pointerup", end); knob.addEventListener("pointercancel", end);
+  knob.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); finish(); } });
+}
+function confirmQB(){
+  const q = S.qb, c = byId(q.id), v = veh(); if (!c || !q.start) return;
+  const dur = q.dur || qbDur(c, v), to = q.reach || q.to, cp = compat(c, v), kwh = Math.min(v.kwh * (to - pct()) / 100, cp.kw * 0.9 * dur);
+  const bk = { kind:"charge", code:mkCode("CHG"), chargerId:c.id, date:dateKey(dayDate(q.start.day)), start:q.start.h, dur, total:bookTotal(c, v, q.start.h, dur, q.cable),
+    host:c.host, hostShort:hostShort(c), area:c.area, charger:chargerLabel(c), vehicle:v.brand + " " + v.model, vid:v.id, km:Math.round(kwh * KM_PER_KWH[v.type]), to, cable:q.cable, pay:q.pay, made:Date.now() };
+  S.bookings.push(bk); store.set(K.book, S.bookings);
+  S.prefs.pay = q.pay; savePrefs();
+  closeSheet();
+  refreshView(); updateBadge();
+  setTimeout(() => showDone(bk, c), 280);
+}
+function showDone(bk, c){
+  const d = new Date(bk.date + "T00:00");
+  showSheet('<div class="grab" aria-hidden="true"></div><div class="sh-body pad" style="align-items:flex-start; padding-top:18px">' +
+    '<div class="okmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + IC.check + '</svg></div>' +
+    '<h2 class="bigtitle">You’re booked</h2>' +
+    '<p class="muted" style="margin:0">' + esc(bk.hostShort) + ' expects you ' + (bk.date === dateKey(dayDate(0)) ? 'today' : dayLbl(d)) + ' at ' + hLabel(bk.start) + '. Show code <b style="color:var(--text)">' + esc(bk.code) + '</b> when you arrive.</p>' +
+    '<div class="stats3" style="width:100%"><div class="stat"><b>' + hLabel(bk.start) + '</b><span>start</span></div><div class="stat"><b>+' + bk.km + ' km</b><span>range</span></div><div class="stat"><b>' + rupee(bk.total) + '</b><span>total</span></div></div>' +
+    '</div><div class="sh-foot pad"><div class="two-btn"><a class="btn ghost" href="' + dirUrl(c) + '" target="_blank" rel="noopener">' + ico("nav") + 'Directions</a><button type="button" class="btn" data-act="close">Done</button></div></div>', "done", "Booking confirmed");
+}
+
+/* =========================================================
+   10. MAP TAB
+   ========================================================= */
+function renderMapTab(){
+  $("#mapchips").innerHTML = filterChips();
+  const items = allChargers().filter(visible).map(c => ({ c, d:distKm(c.lat, c.lng) })).sort((a, b) => a.d - b.d);
+  $("#carousel").innerHTML = items.map(x => listCard(x.c, 0, S.selected === x.c.id ? "sel" : "", "mapcard")).join("") ||
+    '<div class="lc" style="grid-template-columns:1fr; cursor:default">No chargers match these filters.</div>';
+  refreshPins();
+}
+function selectOnMap(id){
+  S.selected = id; refreshPins();
+  const card = $('#carousel [data-id="' + id + '"]');
+  document.querySelectorAll("#carousel .lc").forEach(x => x.classList.toggle("sel", x === card));
+  if (card){ const cr = $("#carousel"); cr.scrollTo({ left:card.offsetLeft - (cr.clientWidth - card.offsetWidth) / 2, behavior:reduceMotion() ? "auto" : "smooth" }); }
+  centerOn(id);
+}
+
+/* =========================================================
+   11. SOS, RENT, HIGHWAY
+   ========================================================= */
+function rescueOpts(){ return veh().type === "car" ? [5,10,15] : [1,2]; }
+function openRescue(){
+  if (S.track && S.track.stage < 5){ go("track"); return; }
+  const v = veh(), r = S.rescue, opts = rescueOpts(); if (!opts.includes(r.kwh)) r.kwh = opts[1] || opts[0];
+  const total = RESCUE.visit + RESCUE.perUnit * r.kwh;
+  showSheet(sheetHead("Battery rescue", "A charging van comes to you, day or night") +
+    '<div class="sh-body pad">' +
+      '<div class="fitbox">' + ico("loc", 2) + '<span><b>' + esc(place().short + ", " + place().sub) + '</b><br><span class="muted">A van reaches you in about 25 to 40 min</span></span><button type="button" class="link vlink" data-act="places">Change</button></div>' +
+      '<div class="fitbox">' + ico(v.type === "car" ? "car" : "scooter", 2) + '<span><b>' + esc(v.brand + " " + v.model) + ' · ' + pct() + '%</b></span><button type="button" class="link vlink" data-act="vehicle">Change</button></div>' +
+      '<div class="grp"><span class="lbl">How much charge</span><div class="seg" role="group" aria-label="How much charge">' + opts.map(k => '<button type="button" data-act="rskwh" data-v="' + k + '" aria-pressed="' + (r.kwh === k) + '">+' + Math.round(k * KM_PER_KWH[v.type]) + ' km</button>').join("") + '</div></div>' +
+      '<div class="card" style="padding:12px 14px"><div class="row"><span>Visit</span><span>' + rupee(RESCUE.visit) + '</span></div><div class="row"><span>' + r.kwh + ' units of charge</span><span>' + rupee(RESCUE.perUnit * r.kwh) + '</span></div><div class="row total"><span>Total</span><span>' + rupee(total) + '</span></div></div>' +
+      '<p class="fine">Demo: this starts a simulated rescue so you can see tracking. Prices are illustrative.</p>' +
+    '</div><div class="sh-foot pad">' + swipeHTML("Swipe to call a van · " + rupee(total), "red") + '</div>', "rescue", "Battery rescue");
+  bindSwipe(sheet().querySelector(".swipe"), startRescue);
+}
+const TRACK = [["Request sent","Finding the nearest van"],["Van assigned","Ravi · GJ 01 EV 4821 (sample)"],["On the way","About 25 minutes away"],["Arrived","Ravi is plugging in"],["Charging","Adding charge to your battery"],["Done","You’re good to go"]];
+let trackTimer = null;
+function startRescue(){
+  const v = veh(), r = S.rescue, total = RESCUE.visit + RESCUE.perUnit * r.kwh;
+  const bk = { kind:"rescue", code:mkCode("SOS"), date:dateKey(dayDate(0)), made:Date.now(), kwh:r.kwh, km:Math.round(r.kwh * KM_PER_KWH[v.type]), total, vehicle:v.brand + " " + v.model, where:place().short, status:"active" };
+  S.bookings.push(bk); store.set(K.book, S.bookings);
+  S.track = { code:bk.code, stage:0, start:pct(), pct:pct(), target:Math.min(100, pct() + Math.round(r.kwh / v.kwh * 100)) };
+  clearInterval(trackTimer);
+  trackTimer = setInterval(() => {
+    const t = S.track; if (!t) return clearInterval(trackTimer);
+    if (t.stage === 4){ t.pct = Math.min(t.target, t.pct + Math.max(1, Math.round((t.target - t.start) / 6))); if (t.pct >= t.target){ t.stage = 5; finishRescue(); } }
+    else if (t.stage < 5) t.stage++;
+    if (t.stage >= 5) clearInterval(trackTimer);
+    if (S.view === "track") renderTrack(); else if (S.view === "home" && t.stage >= 5 && !sheet().classList.contains("open")) renderHome();
+    updateBadge();
+  }, 2000);
+  go("track");
+}
+function finishRescue(){
+  const bk = S.bookings.find(b => b.code === S.track.code); if (bk){ bk.status = "done"; store.set(K.book, S.bookings); }
+  setPct(S.track.target); renderTop(); toast("Rescue done. Battery at " + S.track.target + "%");
+}
+function renderTrack(){
+  const t = S.track; if (!t){ go("home"); return; }
+  const bk = S.bookings.find(b => b.code === t.code);
+  $("#v-track").innerHTML =
+    '<div class="vhead pad narrow"><button type="button" class="iconbtn" data-act="tab" data-v="home" aria-label="Back">' + ico("back", 2.2) + '</button><h1>' + (t.stage >= 5 ? "Rescue done" : TRACK[t.stage][0]) + '</h1><span class="tag red">' + esc(t.code) + '</span></div>' +
+    '<div class="scroll"><div class="pad stack narrow" style="padding-top:6px">' +
+      batteryBar(t.start, Math.max(t.start, t.pct)) +
+      (t.stage >= 1 && t.stage < 5 ? '<div class="card" style="display:flex;gap:12px;align-items:center;padding:12px 14px"><div class="av">R</div><div style="flex:1"><b>Ravi</b><div class="fine">Charging van · GJ 01 EV 4821 (sample)</div></div></div>' : '') +
+      '<ol class="track">' + TRACK.map((s, i) => '<li class="tstep ' + (i < t.stage || t.stage === 5 ? 'done' : i === t.stage ? 'now' : 'todo') + '"><span class="tdot">' + (i < t.stage || t.stage === 5 ? ico("check", 3) : '') + '</span><div><div class="tt">' + s[0] + '</div><div class="td">' + (i === 5 && bk ? 'Added about ' + bk.km + ' km of range' : s[1]) + '</div></div></li>').join("") + '</ol>' +
+      '<p class="fine">Simulated for the demo. Each step moves on its own.</p>' +
+    '</div></div>' +
+    '<div class="pad narrow" style="padding-block:12px">' + (t.stage < 3 ? '<button type="button" class="btn ghost block" data-act="rscancel">Cancel rescue</button>' : t.stage >= 5 ? '<button type="button" class="btn block" data-act="tab" data-v="home">Find a charger</button>' : '<button type="button" class="btn block" disabled>Charging in progress</button>') + '</div>';
+}
+function openRent(){
+  const v = veh(), r = S.rent, items = RENTALS.map(x => Object.assign({ ok:x.fits.includes(v.type) }, x));
+  if (!items.find(x => x.id === r.item && x.ok)) r.item = (items.find(x => x.ok) || items[0]).id;
+  const it = RENTALS.find(x => x.id === r.item), total = it.price * r.days + (r.drop ? 49 : 0);
+  showSheet(sheetHead("Rent a cable or charger", "Delivered tomorrow morning, or pick up free") +
+    '<div class="sh-body pad">' +
+      '<div class="picklist">' + items.map(x => '<button type="button" class="pick" data-act="rentitem" data-v="' + x.id + '" aria-pressed="' + (r.item === x.id) + '"' + (x.ok ? '' : ' disabled style="opacity:.45"') + '><span class="ic">' + ico("plug") + '</span><span class="who"><b>' + esc(x.name) + '</b><span>' + esc(x.ok ? x.desc : 'Not for your ' + v.model) + '</span></span><span class="price" style="font-size:15px">' + rupee(x.price) + '<small>/day</small></span></button>').join("") + '</div>' +
+      '<div class="two"><div class="grp"><span class="lbl">Days</span><div class="seg" role="group" aria-label="Days">' + [1,2,3].map(n => '<button type="button" data-act="rentdays" data-v="' + n + '" aria-pressed="' + (r.days === n) + '">' + n + '</button>').join("") + '</div></div>' +
+      '<div class="grp"><span class="lbl">Get it by</span><div class="seg" role="group" aria-label="Delivery"><button type="button" data-act="rentdrop" data-v="1" aria-pressed="' + r.drop + '">Delivery</button><button type="button" data-act="rentdrop" data-v="0" aria-pressed="' + !r.drop + '">Pick up</button></div></div></div>' +
+      '<div class="card" style="padding:12px 14px"><div class="row"><span>' + esc(it.name) + ' × ' + r.days + '</span><span>' + rupee(it.price * r.days) + '</span></div>' + (r.drop ? '<div class="row"><span>Delivery</span><span>' + rupee(49) + '</span></div>' : '') + '<div class="row total"><span>Total</span><span>' + rupee(total) + '</span></div></div>' +
+    '</div><div class="sh-foot pad">' + swipeHTML("Swipe to rent · " + rupee(total), "") + '</div>', "rent", "Rent a cable");
+  bindSwipe(sheet().querySelector(".swipe"), () => {
+    S.bookings.push({ kind:"rental", code:mkCode("RNT"), item:it.name, days:r.days, drop:r.drop, date:dateKey(dayDate(1)), total, made:Date.now() });
+    store.set(K.book, S.bookings); closeSheet(); updateBadge(); toast(r.drop ? "Rented. It arrives tomorrow morning." : "Rented. Pick it up from Kunal in Navrangpura.");
+  });
+}
+function renderHighway(){
+  const routes = ["All","Vadodara","Udaipur","Rajkot","Mumbai"];
+  const list = HIGHWAY.filter(h => S.hw === "All" || h.route === S.hw).sort((a, b) => a.from - b.from);
+  $("#v-highway").innerHTML = '<div class="vhead pad wrap"><button type="button" class="iconbtn" data-act="tab" data-v="home" aria-label="Back">' + ico("back", 2.2) + '</button><h1>Highway stops</h1></div>' +
+    '<div class="chips pad wrap" role="group" aria-label="Route" style="padding-bottom:6px; flex:0 0 auto">' + routes.map(r => '<button type="button" class="chip" data-act="hw" data-v="' + r + '" aria-pressed="' + (S.hw === r) + '">' + (r === "All" ? "All routes" : "To " + r) + '</button>').join("") + '</div>' +
+    '<div class="scroll"><div class="pad stack wrap" style="padding-top:10px"><p class="fine">Top up on the way. Every stop has food or tea, so the wait feels short.</p><ul class="list">' + list.map((c, i) => '<li>' + listCard(c, i) + '</li>').join("") + '</ul><p class="fine">Highway hosts are sample data.</p></div></div>';
+}
+
+/* =========================================================
+   12. LIVE CHARGING SESSION (simulated)
+   ========================================================= */
+let sessTimer = null;
+function startSession(code){
+  const b = S.bookings.find(x => x.code === code); if (!b) return;
+  const c = byId(b.chargerId); if (!c) return;
+  const v = VEHICLES.find(x => x.id === b.vid) || veh(), cp = compat(c, v);
+  const to = Math.max(b.to || targetFor(), Math.min(100, pct() + 5));
+  S.session = { code, cid:c.id, from:pct(), pct:pct(), to, kw:cp.kw || 3, price:priceFor(c, v), maxH:b.dur, kwh:v.kwh, type:v.type, done:false, rating:0 };
+  clearInterval(sessTimer); sessTimer = setInterval(tickSession, 350);
+  go("session");
+}
+function tickSession(){
+  const s = S.session; if (!s || s.done) return clearInterval(sessTimer);
+  s.pct = Math.min(s.to, s.pct + 1);
+  const hrs = (s.pct - s.from) / 100 * s.kwh / (s.kw * 0.9);
+  if (s.pct >= s.to || hrs >= s.maxH) endSession(); else if (S.view === "session") paintSession();
+}
+function sessNums(s){
+  const kwh = (s.pct - s.from) / 100 * s.kwh, hrs = kwh / (s.kw * 0.9);
+  return { kwh, hrs, km:Math.round(kwh * KM_PER_KWH[s.type]), cost:s.price * Math.min(s.maxH, Math.max(1, Math.ceil(hrs - 0.05))) };
+}
+function endSession(){
+  const s = S.session; if (!s || s.done) return; s.done = true; clearInterval(sessTimer);
+  const n = sessNums(s), b = S.bookings.find(x => x.code === s.code);
+  if (b){ b.ended = true; b.total = n.cost; b.km = n.km; store.set(K.book, S.bookings); }
+  setPct(s.pct); renderTop(); updateBadge();
+  if (S.view === "session") renderSession();
+}
+function renderSession(){
+  const s = S.session; if (!s){ go("home"); return; }
+  const c = byId(s.cid);
+  $("#v-session").innerHTML = '<div class="vhead pad narrow"><button type="button" class="iconbtn" data-act="tab" data-v="home" aria-label="Back">' + ico("back", 2.2) + '</button><h1>' + (s.done ? 'Charging done' : 'Charging at ' + esc(hostShort(c)) + '’s') + '</h1></div>' +
+    '<div class="scroll"><div class="pad sess narrow">' +
+      '<div class="vbat' + (s.done ? ' stopped' : '') + '"><div class="vbat-fill" id="vb-fill"></div><div class="vbat-pct" id="vb-pct"></div></div>' +
+      '<div class="stats3" style="width:100%"><div class="stat"><b id="vb-kwh"></b><span>units added</span></div><div class="stat"><b id="vb-km"></b><span>range added</span></div><div class="stat"><b id="vb-cost"></b><span>' + (s.done ? 'paid' : 'so far') + '</span></div></div>' +
+      (s.done ? '<div class="card" style="width:100%"><h2 style="font-size:18px">How was ' + esc(hostShort(c)) + '’s charger?</h2><div class="stars" style="margin-top:8px">' + [1,2,3,4,5].map(n => '<button type="button" class="' + (n <= s.rating ? 'on' : '') + '" data-act="sessrate" data-v="' + n + '" aria-label="' + n + ' star' + (n > 1 ? 's' : '') + '">★</button>').join("") + '</div>' + (s.rating ? '<p class="fine" style="margin-top:6px">Thanks. ' + esc(hostShort(c)) + ' will see your rating.</p>' : '') + '</div>'
+        : '<p class="fine">Simulated: the battery fills much faster than real life. Target ' + s.to + '%.</p>') +
+    '</div></div>' +
+    '<div class="pad narrow" style="padding-block:12px">' + (s.done ? '<button type="button" class="btn block" data-act="sessdone">Done</button>' : '<button type="button" class="btn ghost block" data-act="sessstop">Stop charging</button>') + '</div>';
+  paintSession();
+}
+function paintSession(){
+  const s = S.session, n = sessNums(s), f = $("#vb-fill"); if (!f) return;
+  f.style.height = "calc(" + s.pct + "% - " + (s.pct / 100 * 16).toFixed(1) + "px)";
+  $("#vb-pct").textContent = s.pct + "%"; $("#vb-kwh").textContent = n.kwh.toFixed(1); $("#vb-km").textContent = "+" + n.km + " km"; $("#vb-cost").textContent = rupee(n.cost);
+}
+
+/* =========================================================
+   13. BOOKINGS
+   ========================================================= */
+function bkEnd(b){
+  if (b.kind === "charge"){ if (b.ended) return 0; const d = new Date(b.date + "T00:00"); d.setHours(b.start + b.dur); return d.getTime(); }
+  if (b.kind === "rental"){ const d = new Date(b.date + "T00:00"); d.setDate(d.getDate() + b.days); return d.getTime(); }
+  if (b.kind === "rescue") return b.status === "active" ? Infinity : 0;
+  if (b.kind === "install") return Infinity;
+  return 0;
+}
+const isUp = b => bkEnd(b) > Date.now();
+function renderBookings(){
+  const up = S.bookings.filter(isUp).sort((a, b) => (a.kind === "charge" ? bkStart(a) : a.made) - (b.kind === "charge" ? bkStart(b) : b.made));
+  const past = S.bookings.filter(b => !isUp(b)).sort((a, b) => (b.made || 0) - (a.made || 0));
+  let h = '<div class="scroll"><div class="pad stack wrap"><h1 style="font-size:26px">Bookings</h1>';
+  h += '<div class="grp"><div class="sec-h"><h2>Coming up</h2></div>' + (up.length ? '<div class="bgrid">' + up.map(bkCard).join("") + '</div>' : '<div class="card empty"><p class="muted">Nothing booked right now.</p><button type="button" class="btn small" data-act="tab" data-v="home">' + ico("bolt") + 'Find a charger</button></div>') + '</div>';
+  if (past.length) h += '<div class="grp"><div class="sec-h"><h2>Past</h2></div>' + '<div class="bgrid">' + past.map(bkCard).join("") + '</div>' + '</div>';
+  h += '</div></div>';
+  $("#v-bookings").innerHTML = h;
+}
+function bkCard(b){
+  const up = isUp(b); let box, title, sub, acts = "";
+  if (b.kind === "charge"){
+    const d = new Date(b.date + "T00:00"), c = byId(b.chargerId);
+    box = '<div class="datebox"><span>' + DAY_SHORT[d.getDay()] + '</span><b>' + d.getDate() + '</b></div>';
+    title = esc(b.host) + (b.sample ? ' <span class="tag">Sample</span>' : '');
+    sub = hLabel(b.start) + ' to ' + hLabel(b.start + b.dur) + ' · ' + esc(b.area) + ' · ' + rupee(b.total);
+    if (up) acts = '<button type="button" class="btn small" data-act="startsess" data-v="' + esc(b.code) + '">' + ico("bolt") + 'Start charging</button><a class="btn ghost small" href="' + dirUrl(c) + '" target="_blank" rel="noopener">Directions</a><button type="button" class="link muted" data-act="cancelask" data-v="' + esc(b.code) + '">Cancel</button>';
+    else acts = (c ? '<button type="button" class="pbtn" data-act="qb" data-id="' + c.id + '" data-v="' + (b.to || "") + '">Rebook</button>' : '') +
+      (b.rating ? '<span class="fine">You rated ' + "★".repeat(b.rating) + '</span>' : '<span class="stars small">' + [1,2,3,4,5].map(n => '<button type="button" data-act="rate" data-v="' + esc(b.code) + '" data-id="' + n + '" aria-label="Rate ' + n + '">★</button>').join("") + '</span>');
+  } else if (b.kind === "rescue"){
+    box = '<div class="datebox ic red">' + ico("sos") + '</div>'; title = "Battery rescue";
+    sub = (b.status === "cancelled" ? "Cancelled" : '+' + b.km + ' km') + ' · ' + esc(b.where) + ' · ' + rupee(b.total);
+    if (up) acts = '<button type="button" class="btn small red" data-act="go" data-v="track">Track the van</button>';
+  } else if (b.kind === "rental"){
+    box = '<div class="datebox ic blue">' + ico("plug") + '</div>'; title = esc(b.item);
+    sub = b.days + (b.days > 1 ? ' days' : ' day') + ' from ' + dayLbl(new Date(b.date + "T00:00")) + ' · ' + (b.drop ? 'Delivery' : 'Pick up') + ' · ' + rupee(b.total);
+  } else {
+    box = '<div class="datebox ic violet">' + ico("wrench") + '</div>'; title = "Charger installation";
+    sub = esc(b.label) + ' · about ' + rupee(b.lo) + ' to ' + rupee(b.hi) + ' · we’ll call you';
+  }
+  return '<div class="card bk"><div class="bk-top">' + box + '<div class="who"><b>' + title + '</b><span>' + sub + '</span></div></div>' + (acts ? '<div class="bk-act">' + acts + '</div>' : '') + '</div>';
+}
+
+/* =========================================================
+   14. EARN (hosting)
+   ========================================================= */
+function earnMonthly(kind, price, hrs){ const keep = price - Math.round(price * FEE) - Math.round(KINDS[kind].kw * UNIT); return Math.max(0, keep) * hrs * 30; }
+const SAMPLE_WEEK = [380, 520, 260, 610, 740, 980, 860];
+function chartSVG(vals){
+  const W = 320, H = 130, pb = 18, pt = 16, max = Math.max(...vals), bw = 28, gap = (W - bw * 7) / 6;
+  let g = '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Earnings per day, illustrative">';
+  vals.forEach((v, i) => { const h = (H - pb - pt) * v / max, x = i * (bw + gap), y = H - pb - h;
+    g += '<rect class="bar' + (v === max ? ' top' : '') + '" x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + bw + '" height="' + h.toFixed(1) + '" rx="7" style="animation-delay:' + (i * 50) + 'ms"/>';
+    g += '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (y - 5).toFixed(1) + '" text-anchor="middle">' + v + '</text><text x="' + (x + bw / 2).toFixed(1) + '" y="' + (H - 3) + '" text-anchor="middle">' + ["M","T","W","T","F","S","S"][i] + '</text>'; });
+  return g + '</svg>';
+}
+function earnFine(e, keep){
+  return keep > 0 ? "You keep " + rupee(keep) + " per booked hour after the 10% fee and about " + rupee(KINDS[e.kind].kw * UNIT) + " of electricity (at ₹" + UNIT + " a unit)." : "At this price you lose money on electricity. Try a higher price.";
+}
+function renderEarn(){
+  const e = S.earn, keep = e.price - Math.round(e.price * FEE) - Math.round(KINDS[e.kind].kw * UNIT), month = earnMonthly(e.kind, e.price, e.hrs);
+  const ins = INSTALL[S.inst.kind];
+  let h = '<div class="scroll" id="earnscroll"><div class="pad stack wrap"><h1 style="font-size:26px">Earn from your charger</h1><div class="cols"><div class="col">' +
+    '<div class="calc"><span class="muted" style="font-weight:700">You could earn</span><div><span class="big" id="earn-big">' + rupee(month) + '</span> <span class="muted">a month</span></div>' +
+      '<div class="chips" role="group" aria-label="Your charger">' + Object.keys(KINDS).map(k => '<button type="button" class="chip" data-act="ekind" data-v="' + k + '" aria-pressed="' + (e.kind === k) + '">' + KINDS[k].label + '</button>').join("") + '</div>' +
+      '<div class="field"><div class="lblrow"><label for="e-price">Price per hour</label><output id="e-price-o" for="e-price">' + rupee(e.price) + '</output></div><input type="range" id="e-price" min="30" max="300" step="5" value="' + e.price + '"></div>' +
+      '<div class="grp"><span class="lbl">Booked hours a day</span><div class="chips">' + [1,2,3,4,6].map(n => '<button type="button" class="chip" data-act="ehrs" data-v="' + n + '" aria-pressed="' + (e.hrs === n) + '">' + n + ' hr' + (n > 1 ? 's' : '') + '</button>').join("") + '</div></div>' +
+      '<p class="fine" id="earn-fine">' + earnFine(e, keep) + '</p>' +
+      '<button type="button" class="btn block" data-act="go" data-v="list">' + ico("plus") + 'List your charger</button></div></div><div class="col">';
+  if (S.listings.length){
+    h += '<div class="grp"><div class="sec-h"><h2>Your listings</h2></div>' + S.listings.map(c => '<div class="card ml"><div class="bk-top"><div class="av">' + esc(initials(c.host)) + '</div><div class="who"><b>' + esc(c.address) + '</b><span>' + esc(c.area) + ' · ' + chargerLabel(c) + ' · ' + rupee(c.price) + '/hr</span></div><span class="tag ' + (c.paused ? '' : 'mint') + '">' + (c.paused ? 'Paused' : 'Live') + '</span></div>' +
+      '<label class="switch" for="lp-' + c.id + '"><span class="t">Taking bookings</span><input type="checkbox" id="lp-' + c.id + '" data-lsw="paused" data-id="' + c.id + '"' + (c.paused ? '' : ' checked') + '></label>' +
+      '<label class="switch" for="lk-' + c.id + '"><span class="t">Peak pricing, 6 to 10 PM</span><input type="checkbox" id="lk-' + c.id + '" data-lsw="peak" data-id="' + c.id + '"' + (c.peak ? ' checked' : '') + '></label>' +
+      '<div class="bk-act"><button type="button" class="pbtn" data-act="showmine" data-id="' + c.id + '">View on map</button><button type="button" class="link danger" data-act="removeask" data-id="' + c.id + '">Remove</button></div></div>').join("") + '</div>';
+  }
+  h += '<div class="grp"><div class="sec-h"><h2>A typical week</h2><span class="tag">Illustrative</span></div><div class="card">' + chartSVG(SAMPLE_WEEK) + '<p class="fine" style="margin-top:6px">Rupees per day for a 7.4 kW host, after the 10% fee. Weekends are busiest.</p></div></div>';
+  h += '<div class="grp"><div class="sec-h"><h2>No charger yet?</h2></div><div class="card" style="display:flex;flex-direction:column;gap:12px">' +
+    '<div class="chips">' + Object.keys(KINDS).map(k => '<button type="button" class="chip" data-act="ikind" data-v="' + k + '" aria-pressed="' + (S.inst.kind === k) + '">' + KINDS[k].label + '</button>').join("") + '</div>' +
+    '<div><span class="muted" style="font-weight:700">Installed for about</span><div style="font-size:24px;font-weight:800">' + rupee(ins.lo + 3750) + ' to ' + rupee(ins.hi + 3750) + '</div><p class="fine">Includes about 15 m of wiring.' + (S.inst.kind === "t11" ? ' Needs a three-phase connection.' : '') + ' Illustrative prices.</p></div>' +
+    '<button type="button" class="btn ghost block" data-act="instbook">' + ico("wrench") + 'Get a free callback</button></div></div>';
+  h += '</div></div></div></div>';
+  const prev = $("#earnscroll"), keepS = prev ? prev.scrollTop : 0;
+  $("#v-earn").innerHTML = h; $("#earnscroll").scrollTop = keepS;
+  $("#e-price").addEventListener("input", ev => {
+    S.earn.price = +ev.target.value; const k2 = S.earn.price - Math.round(S.earn.price * FEE) - Math.round(KINDS[S.earn.kind].kw * UNIT);
+    $("#e-price-o").textContent = rupee(S.earn.price); $("#earn-big").textContent = rupee(earnMonthly(S.earn.kind, S.earn.price, S.earn.hrs)); $("#earn-fine").textContent = earnFine(S.earn, k2);
+  });
+}
+
+/* ---------- Listing form ---------- */
+let pendingPhotos = [];
+function initHostForm(){
+  $("#h-area").innerHTML = '<option value="">Choose your area</option>' + Object.keys(AREAS).map(a => '<option>' + a + '</option>').join("");
+  let o = "", cl = "";
+  for (let h = 0; h < 24; h++) o += '<option value="' + h + '"' + (h === 9 ? ' selected' : '') + '>Opens ' + hLabel(h) + '</option>';
+  for (let h = 1; h <= 24; h++) cl += '<option value="' + h + '"' + (h === 18 ? ' selected' : '') + '>Closes ' + hLabel(h) + '</option>';
+  $("#h-open").innerHTML = o; $("#h-close").innerHTML = cl;
+  const form = $("#hostform");
+  form.addEventListener("input", ev => { updateForm(); clearErr(ev.target); });
+  form.addEventListener("change", ev => { updateForm(); clearErr(ev.target); });
+  form.addEventListener("submit", ev => { ev.preventDefault(); publishListing(); });
+  $("#h-photos").addEventListener("change", ev => { pendingPhotos = [...ev.target.files].slice(0, 4).map(f => URL.createObjectURL(f)); renderPhotoPrev(); });
+}
+function renderPhotoPrev(){ const w = $("#h-photo-prev"); w.querySelectorAll("img").forEach(i => i.remove()); pendingPhotos.forEach(u => { const im = document.createElement("img"); im.src = u; im.alt = "Selected photo"; w.insertBefore(im, w.firstChild); }); }
+function renderListForm(){
+  if (!$("#h-name").value && !$("#h-address").value){ S.hostKind = S.earn.kind; $("#h-price").value = S.earn.price; }
+  $("#h-kind").innerHTML = Object.keys(KINDS).map(k => '<button type="button" class="chip" data-act="hkind" data-v="' + k + '" aria-pressed="' + (S.hostKind === k) + '">' + KINDS[k].label + '</button>').join("");
+  $("#h-days").innerHTML = [1,2,3,4,5,6,0].map(d => '<button type="button" data-act="hday" data-v="' + d + '" aria-pressed="' + S.hostDays.has(d) + '" aria-label="' + DAY_LONG[d] + '">' + DAY_SHORT[d].slice(0, 1) + '</button>').join("");
+  updateForm();
+}
+function updateForm(){
+  const socket = S.hostKind === "socket";
+  $("#w-cable").hidden = socket; $("#w-s2w").hidden = socket;
+  $("#w-rentcable").hidden = socket || $("#h-cable").checked;
+  $("#w-p2w").hidden = !(socket || $("#h-s2w").checked);
+  const price = +$("#h-price").value, kw = KINDS[S.hostKind].kw, keep = price - Math.round(price * FEE) - Math.round(kw * UNIT);
+  $("#o-price").textContent = rupee(price); $("#o-p2w").textContent = rupee(+$("#h-p2w").value);
+  const sg = { socket:[50,80], t7:[100,140], t11:[150,200] }[S.hostKind];
+  $("#h-suggest").textContent = "Suggested for a " + KINDS[S.hostKind].label + ": ₹" + sg[0] + " to ₹" + sg[1] + " an hour.";
+  $("#h-est").innerHTML = '<span class="muted" style="font-weight:700">At 2 booked hours a day</span><div style="font-size:28px;font-weight:800;color:var(--lime)">' + rupee(Math.max(0, keep) * 60) + ' <span style="font-size:14px;color:var(--text-2)">a month</span></div><p class="fine">' + (keep > 0 ? 'You keep ' + rupee(keep) + ' per hour after the 10% fee and electricity.' : 'At this price you lose money on electricity.') + '</p>';
+}
+function setErr(key, id, msg){ const e = $("#e-" + key); e.textContent = msg; e.hidden = false; if (id) $("#" + id).setAttribute("aria-invalid", "true"); }
+function clearErr(el){ if (!el || !el.id) return; el.removeAttribute("aria-invalid"); const m = { "h-name":"name", "h-address":"address", "h-area":"area", "h-open":"hours", "h-close":"hours" }; if (m[el.id]) $("#e-" + m[el.id]).hidden = true; }
+function publishListing(){
+  const name = $("#h-name").value.trim(), address = $("#h-address").value.trim(), area = $("#h-area").value, open = +$("#h-open").value, close = +$("#h-close").value;
+  ["name","address","area","hours","days"].forEach(k => $("#e-" + k).hidden = true);
+  let first = null;
+  if (!name){ setErr("name", "h-name", "Add your name so drivers know who they are meeting."); first = first || "h-name"; }
+  if (!address){ setErr("address", "h-address", "Add an address or a landmark nearby."); first = first || "h-address"; }
+  if (!area){ setErr("area", "h-area", "Choose your area so we can place your pin."); first = first || "h-area"; }
+  if (!S.hostDays.size) setErr("days", null, "Pick at least one day.");
+  if (close <= open){ setErr("hours", "h-close", "Closing time has to be after opening time."); first = first || "h-close"; }
+  if (first || !S.hostDays.size){ if (first) $("#" + first).focus(); return; }
+  const socket = S.hostKind === "socket", [alat, alng] = AREAS[area], j = () => (Math.random() - 0.5) * 0.008;
+  const c = { id:"u" + Date.now().toString(36), host:name, area, address, lat:alat + j(), lng:alng + j(), kind:S.hostKind,
+    cable:!socket && $("#h-cable").checked, cableRent:!socket && !$("#h-cable").checked && $("#h-rentcable").checked,
+    socket2w:socket || $("#h-s2w").checked, price:+$("#h-price").value, price2w:(socket || $("#h-s2w").checked) ? +$("#h-p2w").value : null,
+    open, close, days:[...S.hostDays].sort(), peak:$("#h-peak").checked, rating:null, sessions:0, note:$("#h-note").value.trim(), mine:true, paused:false };
+  if (pendingPhotos.length) photos[c.id] = pendingPhotos.slice();
+  pendingPhotos = []; renderPhotoPrev();
+  S.listings.push(c); store.set(K.list, S.listings); buildPins();
+  $("#hostform").reset(); S.hostDays = new Set(ALL_DAYS);
+  go("earn"); toast("Your charger is live on the map");
+}
+
+/* =========================================================
+   15. PROFILE
+   ========================================================= */
+function renderProfile(){
+  const done = S.bookings.filter(b => b.kind === "charge" && b.ended).length;
+  let h = '<div class="scroll"><div class="pad stack wrap">' +
+    '<div class="me-head"><div class="me-av">' + ico("user", 1.9) + '</div><div><h1 style="font-size:24px">Hi there</h1><div class="fine">Guest · Ahmedabad · ' + done + (done === 1 ? ' session' : ' sessions') + '</div></div></div>' +
+    '<div class="cols"><div class="col"><div class="grp"><div class="sec-h"><h2>My vehicles</h2><button type="button" class="link" data-act="addveh">+ Add</button></div><div class="picklist">' +
+      S.garage.list.map((g, i) => { const v = VEHICLES.find(x => x.id === g.id); if (!v) return ""; const on = i === S.garage.active;
+        return '<div class="pick' + (on ? ' on' : '') + '"><span class="ic">' + ico(v.type === "car" ? "car" : "scooter") + '</span><span class="who"><b>' + esc(v.brand + " " + v.model) + '</b><span>' + esc(v.variant) + ' · ' + fmtKw(v.ac) + (v.type === "car" ? ' AC' : ' charger') + ' · ' + g.pct + '%</span></span>' +
+          (on ? '<span class="tag lime">In use</span>' : '<button type="button" class="pbtn" data-act="setveh" data-v="' + i + '">Use</button>') +
+          (S.garage.list.length > 1 ? '<button type="button" class="iconbtn" style="width:34px;height:34px" data-act="delveh" data-v="' + i + '" aria-label="Remove ' + esc(v.model) + '">' + ico("close", 2.2) + '</button>' : '') + '</div>'; }).join("") +
+    '</div></div>' +
+    '<div class="grp"><div class="sec-h"><h2>Saved places</h2></div><div class="picklist">' + Object.keys(PLACES).map(k => { const P = PLACES[k]; return '<button type="button" class="pick" data-act="setplace" data-v="' + k + '" aria-pressed="' + (S.prefs.place === k) + '"><span class="ic">' + ico(P.icon) + '</span><span class="who"><b>' + P.name + '</b><span>' + esc(P.short + ", " + P.sub) + '</span></span>' + (S.prefs.place === k ? chkSvg : '') + '</button>'; }).join("") + '</div></div>' +
+    '</div><div class="col"><div class="grp"><div class="sec-h"><h2>Pay with</h2></div><div class="seg" role="group" aria-label="Default payment">' + [["upi","UPI"],["card","Card"],["wallet","Wallet"]].map(([k, l]) => '<button type="button" data-act="setpay" data-v="' + k + '" aria-pressed="' + (S.prefs.pay === k) + '">' + l + '</button>').join("") + '</div></div>' +
+    '<div class="plus"><span style="font-weight:800;font-size:12.5px;opacity:.75">ChargeIt Plus · ₹149 a month · illustrative</span><h2>' + (S.prefs.plus ? 'You’re on the waitlist' : 'Charge more, pay less') + '</h2><p>5% off every booking, free cable rentals and one free rescue every three months.</p><button type="button" class="btn small" data-act="plus">' + (S.prefs.plus ? 'Leave waitlist' : 'Join the waitlist') + '</button></div>' +
+    '<div class="rows"><div class="mrow"><span>Language</span><span class="r">English · Gujarati and Hindi soon</span></div><div class="mrow"><span>ID check for hosts and drivers</span><span class="tag">Soon</span></div><div class="mrow"><span>Share live trip with family</span><span class="tag">Soon</span></div>' +
+      '<div class="mrow" id="resetwrap"><span>Demo data on this device</span><button type="button" class="link danger" data-act="reset">Reset</button></div></div>' +
+    '<p class="fine">ChargeIt prototype. Hosts, prices and services are sample data.</p>' +
+  '</div></div></div></div>';
+  $("#v-profile").innerHTML = h;
+}
+
+/* =========================================================
+   16. NAVIGATION AND TAPS
+   ========================================================= */
+const TABS = [["home","Home","bolt"],["map","Map","map"],["bookings","Bookings","cal"],["earn","Earn","rupee"],["profile","Profile","user"]];
+const PARENT = { highway:"home", track:"home", session:"bookings", list:"earn" };
+const RENDER = { home:renderHome, map:renderMapTab, bookings:renderBookings, earn:renderEarn, profile:renderProfile, highway:renderHighway, track:renderTrack, session:renderSession, list:renderListForm };
+function renderTabs(){
+  const html = TABS.map(([k, l, i]) => '<button type="button" class="tab" data-act="tab" data-v="' + k + '" aria-current="' + (S.tab === k ? "page" : "false") + '">' + ico(i, 1.9) + l + (k === "bookings" ? '<span class="badge" hidden></span>' : '') + '</button>').join("");
+  $("#tabs").innerHTML = html; $("#topnav").innerHTML = html;
+}
+function go(v){
+  closeSheet(); $("#app").scrollTop = 0;
+  if (v === "map" && wide()) v = "home";
+  S.view = v; S.tab = TABS.some(t => t[0] === v) ? v : (PARENT[v] || S.tab);
+  const split = wide() && v === "home";
+  document.querySelectorAll(".view").forEach(el => el.hidden = !(el.id === "v-" + v || (split && el.id === "v-map")));
+  const sub = !TABS.some(t => t[0] === v);
+  $("#tabs").hidden = sub; $("#top").hidden = !wide() && sub && v !== "highway";
+  renderTabs(); RENDER[v](); if (split) refreshPins(); updateBadge();
+}
+function refreshView(){ renderTop(); RENDER[S.view](); if (S.view !== "map") refreshPins(); }
+function updateBadge(){ const n = S.bookings.filter(isUp).length; document.querySelectorAll(".badge").forEach(b => { b.textContent = n; b.hidden = n === 0; }); }
+
+function onTap(e){
+  const t = e.target.closest("[data-act]"); if (!t || t.disabled) return;
+  const act = t.dataset.act, id = t.dataset.id, v = t.dataset.v;
+  switch (act){
+    case "close": closeSheet(); break;
+    case "places": openPlaces(); break;
+    case "setplace": S.prefs.place = v; savePrefs(); moveYou(); closeSheet(); refreshView(); toast("Showing chargers near " + place().short); break;
+    case "vehicle": openVehicle(); break;
+    case "setveh": S.garage.active = +v; saveGarage(); closeSheet(); refreshView(); toast("Switched to " + veh().model); break;
+    case "setpct": setPct(+v); closeSheet(); refreshView(); toast("Battery set to " + v + "%"); break;
+    case "addveh": openAddVehicle("car"); break;
+    case "addtype": openAddVehicle(v); break;
+    case "pickmodel": {
+      const i = S.garage.list.findIndex(g => g.id === v);
+      if (i >= 0) S.garage.active = i; else { S.garage.list.push({ id:v, pct:30 }); S.garage.active = S.garage.list.length - 1; }
+      saveGarage(); closeSheet(); refreshView(); toast(VEHICLES.find(x => x.id === v).model + " added and selected"); break;
+    }
+    case "delveh": { const i = +v, wasActive = S.garage.active; S.garage.list.splice(i, 1); S.garage.active = wasActive === i ? 0 : wasActive > i ? wasActive - 1 : wasActive; saveGarage(); refreshView(); break; }
+    case "target": S.prefs.target = +v; savePrefs(); renderHome(); break;
+    case "qb": openQB(id, v); break;
+    case "mapcard": openQB(id); break;
+    case "qbto": S.qb.to = +v; S.qb.start = null; renderQB(); break;
+    case "qbslot": { const [d, hh] = v.split(":").map(Number); S.qb.start = { day:d, h:hh, now:d === 0 && hh === Math.floor(nowH()) }; if (!t.classList.contains("slot")) S.qb.pick = false; renderQB(); break; }
+    case "qbpick": S.qb.pick = !S.qb.pick; if (S.qb.start) S.qb.day = S.qb.start.day; renderQB(); break;
+    case "qbday": S.qb.day = +v; renderQB(); break;
+    case "qbpay": S.qb.pay = v; renderQB(); break;
+    case "tab": go(v); break;
+    case "go": go(v); break;
+    case "rescue": openRescue(); break;
+    case "rent": openRent(); break;
+    case "filter": S.filters.has(v) ? S.filters.delete(v) : S.filters.add(v); RENDER[S.view](); refreshPins(); break;
+    case "clearfilters": S.filters.clear(); RENDER[S.view](); refreshPins(); break;
+    case "zin": zoomAt(1.5, M.W / 2, M.H / 2); break;
+    case "zout": zoomAt(1 / 1.5, M.W / 2, M.H / 2); break;
+    case "zfit": fitAll(true); break;
+    case "hw": S.hw = v; renderHighway(); break;
+    case "rskwh": S.rescue.kwh = +v; openRescue(); break;
+    case "rscancel": { clearInterval(trackTimer); const b = S.bookings.find(x => x.code === S.track.code); if (b){ b.status = "cancelled"; b.total = 0; store.set(K.book, S.bookings); } S.track = null; go("home"); toast("Rescue cancelled"); break; }
+    case "rentitem": S.rent.item = v; openRent(); break;
+    case "rentdays": S.rent.days = +v; openRent(); break;
+    case "rentdrop": S.rent.drop = v === "1"; openRent(); break;
+    case "startsess": startSession(v); break;
+    case "sessstop": endSession(); break;
+    case "sessrate": { const s = S.session; s.rating = +v; const b = S.bookings.find(x => x.code === s.code); if (b){ b.rating = +v; store.set(K.book, S.bookings); } renderSession(); break; }
+    case "sessdone": S.session = null; go("home"); break;
+    case "rate": { const b = S.bookings.find(x => x.code === v); if (b){ b.rating = +id; store.set(K.book, S.bookings); } renderBookings(); toast("Thanks for rating"); break; }
+    case "cancelask": t.parentElement.innerHTML = '<span class="fine" style="color:var(--text)">Cancel this booking?</span><button type="button" class="btn small red" data-act="cancelyes" data-v="' + esc(v) + '">Yes, cancel</button><button type="button" class="link muted" data-act="cancelno">Keep it</button>'; break;
+    case "cancelyes": S.bookings = S.bookings.filter(b => b.code !== v); store.set(K.book, S.bookings); renderBookings(); updateBadge(); toast("Booking cancelled. Full refund."); break;
+    case "cancelno": renderBookings(); break;
+    case "ekind": S.earn.kind = v; S.earn.price = { socket:60, t7:120, t11:160 }[v]; renderEarn(); break;
+    case "ehrs": S.earn.hrs = +v; renderEarn(); break;
+    case "ikind": S.inst.kind = v; renderEarn(); break;
+    case "instbook": { const ins = INSTALL[S.inst.kind]; S.bookings.push({ kind:"install", code:mkCode("INS"), label:KINDS[S.inst.kind].label, lo:ins.lo + 3750, hi:ins.hi + 3750, made:Date.now() }); store.set(K.book, S.bookings); updateBadge(); toast("Done. An electrician will call you within a day."); break; }
+    case "hkind": S.hostKind = v; $("#h-price").value = { socket:60, t7:120, t11:160 }[v]; $("#h-kind").innerHTML = Object.keys(KINDS).map(k => '<button type="button" class="chip" data-act="hkind" data-v="' + k + '" aria-pressed="' + (S.hostKind === k) + '">' + KINDS[k].label + '</button>').join(""); updateForm(); break;
+    case "hday": S.hostDays.has(+v) ? S.hostDays.delete(+v) : S.hostDays.add(+v); t.setAttribute("aria-pressed", S.hostDays.has(+v)); break;
+    case "showmine": { S.filters.clear(); go("map"); requestAnimationFrame(() => requestAnimationFrame(() => { measure(); if (wide()) openQB(id); else selectOnMap(id); })); break; }
+    case "removeask": t.parentElement.innerHTML = '<span class="fine" style="color:var(--text)">Remove this listing?</span><button type="button" class="btn small red" data-act="removeyes" data-id="' + esc(id) + '">Remove</button><button type="button" class="link muted" data-act="removeno">Keep</button>'; break;
+    case "removeyes": S.listings = S.listings.filter(c => c.id !== id); store.set(K.list, S.listings); buildPins(); renderEarn(); toast("Listing removed"); break;
+    case "removeno": renderEarn(); break;
+    case "setpay": S.prefs.pay = v; savePrefs(); renderProfile(); break;
+    case "plus": S.prefs.plus = !S.prefs.plus; savePrefs(); renderProfile(); toast(S.prefs.plus ? "You’re on the waitlist" : "Left the waitlist"); break;
+    case "reset": $("#resetwrap").innerHTML = '<span>Delete your test bookings and listings?</span><span class="r"><button type="button" class="link danger" data-act="resetyes">Yes</button><button type="button" class="link muted" data-act="resetno">No</button></span>'; break;
+    case "resetyes": clearInterval(trackTimer); clearInterval(sessTimer); S.track = null; S.session = null; S.listings = []; S.bookings = []; store.set(K.list, []); store.set(K.book, []); buildPins(); renderProfile(); updateBadge(); toast("Demo data cleared"); break;
+    case "resetno": renderProfile(); break;
+  }
+}
+
+/* =========================================================
+   17. START
+   ========================================================= */
+function init(){
+  M.el = $("#map"); M.svg = $("#mapsvg"); M.ov = $("#overlay");
+  buildBase(); buildPins(); initMapInput(); initHostForm();
+  $("#app").addEventListener("click", onTap);
+  $("#app").addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target.matches('.lc[role="button"]')){ e.preventDefault(); e.target.click(); } });
+  $("#scrim").addEventListener("click", closeSheet);
+  $("#v-earn").addEventListener("change", e => {
+    const sw = e.target.closest("[data-lsw]"); if (!sw) return;
+    const c = S.listings.find(x => x.id === sw.dataset.id); if (!c) return;
+    if (sw.dataset.lsw === "paused") c.paused = !sw.checked; else c.peak = sw.checked;
+    store.set(K.list, S.listings); buildPins(); renderEarn(); toast(sw.dataset.lsw === "paused" ? (c.paused ? "Listing paused" : "Listing is live") : (c.peak ? "Peak pricing on" : "Peak pricing off"));
+  });
+  let sd = null; const sh = sheet();
+  sh.addEventListener("pointerdown", e => { if (wide() || !e.target.closest(".grab, .sh-head") || e.target.closest("button")) return; sd = { y:e.clientY, dy:0, id:e.pointerId }; sh.setPointerCapture(e.pointerId); sh.style.transition = "none"; });
+  sh.addEventListener("pointermove", e => { if (!sd || e.pointerId !== sd.id) return; sd.dy = Math.max(0, e.clientY - sd.y); sh.style.transform = "translateY(" + sd.dy + "px)"; });
+  const sdEnd = e => { if (!sd || e.pointerId !== sd.id) return; sh.style.transition = ""; sh.style.transform = ""; if (sd.dy > 80) closeSheet(); sd = null; };
+  sh.addEventListener("pointerup", sdEnd); sh.addEventListener("pointercancel", sdEnd);
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && sh.classList.contains("open")) closeSheet(); });
+  setInterval(() => { if (S.view === "home" && !sheet().classList.contains("open")) renderHome(); updateBadge(); }, 60000);
+  const applyLayout = () => $("#app").classList.toggle("wide", wide());
+  applyLayout();
+  if (MQ){ const onMQ = () => { applyLayout(); M.fitted = false; go(S.view); }; if (MQ.addEventListener) MQ.addEventListener("change", onMQ); else if (MQ.addListener) MQ.addListener(onMQ); }
+  $("#v-home").addEventListener("mouseover", e => { const lc = e.target.closest(".lc"); hoverPin(lc ? lc.dataset.id : null); });
+  $("#v-home").addEventListener("mouseleave", () => hoverPin(null));
+  renderTop(); go("home");
+}
+init();
+})();
+</script>
+</body>
+</html>
